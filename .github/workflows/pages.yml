@@ -29,6 +29,8 @@ jobs:
     - run: npm ci
       env:
         CHROMEDRIVER_SKIP_DOWNLOAD: 'true'
+        # A git dependency builds itself with playwright; its browser download is not needed and can time out.
+        PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
     - run: npm run build
       env:
         NODE_ENV: production
