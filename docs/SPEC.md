@@ -1,9 +1,23 @@
-# ScratchAI 規格書（草案 v0.1）
+# ScratchAI 規格書（v1.0）
 
 > 以 TurboWarp 為基礎，加入「AI 產生積木」與「AI 自動批改」功能的 Scratch 編輯器。
 > 本文件記錄需求決策與技術設計，後續開發以此為準，變更請同步更新。
 
 ---
+
+## 0. 實作狀態（2026-10）
+
+M0～M10 已全部完成，程式位置見 README 的「程式架構」。與原規劃不同或補充之處：
+
+| 項目 | 實作方式 |
+|---|---|
+| 產品名稱 | 介面顯示 **BlockAI**（`src/lib/brand.js` 可修改），避免使用 Scratch 商標 |
+| 介面語言 | AI 面板目前只有正體中文；AI 的說明與問題會依編輯器語言回覆 |
+| JSON 輸出 | 不使用各家的嚴格 JSON Schema（IR 是遞迴結構，各家支援度不一），改為提示詞規範＋本地驗證＋自動修正（最多 2 次） |
+| 代理伺服器 | 以範本形式提供（`proxy/`），非必要；預設每人自備 KEY |
+| 圖片編輯（動畫造型） | 先呼叫 `/images/edits`，失敗時改用文字描述重畫 |
+| 離線 | 建置時產生 `precache-manifest.json`，service worker 快取全部檔案（約 23 MB） |
+| 測試 | 單元測試 `test/unit/ai`（無頭 scratch-vm）、瀏覽器測試 `test/e2e-ai` |
 
 ## 1. 需求決策紀錄
 
@@ -404,6 +418,9 @@ IR 的 `costumes` 支援以下幾種來源：
 - [x] 學生可見度：由老師對每個範本設定（§7.4）
 - [x] KEY：每位學生自備，並自動降級（§4.3、§4.4）
 - [x] 生圖：接 Agnes AI，加上後製選項（§6.4）
-- [ ] Agnes API 能否從瀏覽器直接呼叫（CORS）、是否支援透明背景輸出 → M5 開始前實測
-- [ ] 模型分級表的初始內容（每個平台的高、中、低階模型）→ M1 實作時依當時的模型清單填入
-- [ ] repo 結構：直接把 TurboWarp scratch-gui 匯入本 repo（建議），或是另外 fork 一個 repo
+- [x] repo 結構：TurboWarp scratch-gui 以快照方式匯入本 repo（`docs/UPSTREAM.md`）
+- [x] 模型分級表初始內容：`src/ai/providers/model-tiers.json`
+- [ ] Agnes API 能否從瀏覽器直接呼叫（CORS）、是否支援透明背景輸出：開發環境無法連到 Agnes，需以真實 KEY 實測；
+      不能直連時使用 `proxy/`。去背目前由前端處理，不依賴 API
+- [ ] OpenAI／Gemini 的模型分級表需依實際可用模型更新（Anthropic 已依目前模型填入）
+- [ ] AI 面板英文介面
