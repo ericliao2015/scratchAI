@@ -5,7 +5,7 @@ import styles from './ai-panel.css';
 import {SCORING, STUDENT_VIEWS, emptyTemplate, normalizeTemplate} from '../../ai/grade/template.js';
 import {RULE_DESCRIPTIONS} from '../../ai/grade/rules.js';
 import {draftTemplate} from '../../ai/grade/grade.js';
-import {defaultClassConfig, normalizeClassConfig} from '../../ai/mode.js';
+import {AI_MODES, defaultClassConfig, normalizeClassConfig} from '../../ai/mode.js';
 import {PROVIDERS, PROVIDER_ORDER} from '../../ai/providers/index.js';
 import {describeError} from './errors.js';
 import downloadBlob from '../../lib/download-blob.js';
@@ -157,6 +157,14 @@ const ClassConfigEditor = ({services}) => {
                 />
                 {t('考試模式（關閉 AI 產生積木與生圖）')}
             </label>
+            <label className={styles.label}>{t('AI 協助方式')}</label>
+            <select
+                className={styles.select}
+                value={config.aiMode || 'both'}
+                onChange={e => setConfig({...config, aiMode: e.target.value})}
+            >
+                {Object.entries(AI_MODES).map(([id, label]) => <option key={id} value={id}>{t(label)}</option>)}
+            </select>
             {feature('generate', t('允許 AI 產生積木'))}
             {feature('image', t('允許 AI 生圖'))}
             {feature('selfCheck', t('允許學生自我檢查'))}

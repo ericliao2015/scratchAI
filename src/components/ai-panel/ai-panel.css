@@ -353,3 +353,19 @@
     color: $looks-secondary;
     font-weight: bold;
 }
+
+.code {
+    white-space: pre-wrap;
+    font-family: monospace;
+    font-size: 0.75rem;
+    background: $ui-primary;
+    padding: 0.4rem;
+    border-radius: 4px;
+    max-height: 160px;
+    overflow: auto;
+}
+
+.tutor-question {
+    margin-top: 0.4rem;
+    font-style: italic;
+}

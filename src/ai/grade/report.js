@@ -51,6 +51,10 @@ export const toMarkdown = ({fileName, result, error, describeEvidence = defaultE
     lines.push(scoring === 'passfail' ?
         `- 結果：${result.overallPass ? '通過' : '未通過'}（${result.passedCount}/${result.itemCount} 項）` :
         `- 總分：${result.total}/${result.max}（通過 ${result.passedCount}/${result.itemCount} 項）`);
+    if (result.ai) {
+        lines.push(`- AI 產生的積木：${Math.round(result.ai.share * 100)}%（${result.ai.aiBlocks}/${result.ai.totalBlocks}），` +
+            `AI 產生 ${result.ai.generations} 次、家教 ${result.ai.tutorCount} 次`);
+    }
     lines.push('', '| 項目 | 結果 | 說明 |', '|---|---|---|');
     for (const item of result.items) {
         lines.push(`| ${item.desc.replace(/\|/g, '\\|')} | ${verdict(item, scoring)} | ` +
@@ -76,10 +80,10 @@ export const toCsv = entries => {
     const items = template ? template.result.items : [];
     const scoring = template ? template.result.template.scoring : 'points';
     const header = ['座號', '姓名', '檔案', scoring === 'passfail' ? '結果' : '總分', '通過項數',
-        ...items.map(i => i.desc), '模型', '錯誤'];
+        ...items.map(i => i.desc), 'AI 產生比例', 'AI 產生次數', '家教次數', '模型', '錯誤'];
     const rows = entries.map(({fileName, result, error}) => {
         const {seat, name} = parseFileName(fileName);
-        if (!result) return [seat, name, fileName, '', '', ...items.map(() => ''), '', error || ''];
+        if (!result) return [seat, name, fileName, '', '', ...items.map(() => ''), '', '', '', '', error || ''];
         return [
             seat, name, fileName,
             scoring === 'passfail' ? (result.overallPass ? '通過' : '未通過') : result.total,
@@ -89,6 +93,9 @@ export const toCsv = entries => {
                 if (!own) return '';
                 return scoring === 'passfail' ? (own.pass ? '通過' : '未通過') : own.score;
             }),
+            result.ai ? `${Math.round(result.ai.share * 100)}%` : '',
+            result.ai ? result.ai.generations : '',
+            result.ai ? result.ai.tutorCount : '',
             result.model ? `${result.model.model}${result.model.downgraded ? '(降級)' : ''}` : '',
             ''
         ];

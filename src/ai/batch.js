@@ -150,6 +150,7 @@ const applyAnswer = async (vm, answer, {catalog, libraries, aliases = {}}) => {
             .join('；'));
     }
     const summary = await applyPlan(vm, compiled.plan, {libraries});
+    // Teacher edits are not recorded as student AI usage.
     const warnings = [...compiled.warnings, ...(opResult ? opResult.warnings : []), ...summary.warnings];
     return {summary, opResult, warnings};
 };

@@ -6,6 +6,7 @@ import {compileProgram} from './ir/compile.js';
 import {OP_NAMES, applyOps} from './apply/patch.js';
 import {applyPlan, restoreSnapshot, snapshotProject} from './apply/apply.js';
 import {applyViaWorkspace, canApplyViaWorkspace} from './apply/workspace.js';
+import {blockIdSnapshot, recordUsage} from './provenance.js';
 import {modelFromVM} from './project/model.js';
 import {projectToText} from './project/serialize.js';
 import {formatCatalog} from './catalog/format.js';
@@ -98,6 +99,7 @@ export const generate = async ({
         if (errors.length === 0) {
             return {
                 type: 'program',
+                request,
                 ir,
                 plan: compiled.plan,
                 ops: Array.isArray(ir.ops) ? ir.ops : [],
@@ -149,9 +151,12 @@ export const summarizeProgram = result => {
  * @param {object} options options
  * @returns {Promise<object>} {snapshot, summary, opErrors, warnings}
  */
-export const applyGenerated = async ({vm, catalog, result, libraries, generateImage, onStatus = () => {}}) => {
+export const applyGenerated = async ({
+    vm, catalog, result, libraries, generateImage, onStatus = () => {}, record = true
+}) => {
     onStatus('儲存復原點…');
     const snapshot = await snapshotProject(vm);
+    const before = blockIdSnapshot(vm);
     try {
         const warnings = [...result.warnings];
         let opErrors = [];
@@ -168,6 +173,10 @@ export const applyGenerated = async ({vm, catalog, result, libraries, generateIm
             await applyViaWorkspace(vm, compiled.plan) :
             await applyPlan(vm, compiled.plan, {libraries, generateImage, onProgress: onStatus});
         warnings.push(...summary.warnings);
+        if (record) {
+            summary.aiBlocks = recordUsage(vm, {mode: 'generate', prompt: result.request, model: result.model}, before,
+                {markScripts: !summary.undoable});
+        }
         return {snapshot, summary, opErrors, warnings};
     } catch (e) {
         await restoreSnapshot(vm, snapshot);

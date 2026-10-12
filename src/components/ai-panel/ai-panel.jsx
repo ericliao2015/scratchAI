@@ -8,10 +8,12 @@ import GradeTab from './grade-tab.jsx';
 import BatchTab from './batch-tab.jsx';
 import TemplatesTab from './templates-tab.jsx';
 import SettingsTab from './settings-tab.jsx';
+import TutorTab from './tutor-tab.jsx';
 import {t} from './i18n.js';
 
 const TABS = [
-    {id: 'generate', label: '產生積木', component: GenerateTab, visible: () => true},
+    {id: 'generate', label: '產生積木', component: GenerateTab, visible: p => p.generate || !p.tutor},
+    {id: 'tutor', label: 'AI 家教', component: TutorTab, visible: p => p.tutor},
     {id: 'image', label: 'AI 生圖', component: ImageTab, visible: () => true},
     {id: 'grade', label: p => (p.teacher ? t('批改') : t('自我檢查')), component: GradeTab, visible: () => true},
     {id: 'batch', label: '批次', component: BatchTab, visible: p => p.batch},

@@ -4,6 +4,7 @@
 import {extractJson} from '../json.js';
 import {ProjectSerializer, projectToText, targetOfBlock} from '../project/serialize.js';
 import {runRule} from './rules.js';
+import {aiUsageSummary} from '../provenance.js';
 import {normalizeTemplate} from './template.js';
 import {buildGradeSystemPrompt, buildGradeUserMessage, buildTemplateDraftPrompt} from '../prompts/grade.js';
 
@@ -127,6 +128,9 @@ export const gradeProject = async ({
         total,
         max,
         overallPass: passedCount >= threshold,
+        ai: (({share, aiBlocks, totalBlocks, generations, tutorCount}) => ({
+            share, aiBlocks, totalBlocks, generations, tutorCount
+        }))(aiUsageSummary(model)),
         summary,
         model: modelInfo
     };

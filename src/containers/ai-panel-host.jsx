@@ -16,7 +16,7 @@ import {loadClassConfigFromUrl, loadModeState, permissions, saveModeState} from 
 import {loadTemplates, saveTemplates} from '../ai/grade/template.js';
 import {makeIRImageGenerator} from '../ai/image/index.js';
 import {applyPlan} from '../ai/apply/apply.js';
-import {setLocale} from '../components/ai-panel/i18n.js';
+import {setLocale, t} from '../components/ai-panel/i18n.js';
 
 export const TOGGLE_EVENT = 'scratchai:toggle-panel';
 
@@ -38,6 +38,7 @@ class AIPanelHost extends React.Component {
             settings: loadSettings(),
             modeState,
             templates: loadTemplates(),
+            tutorRequest: null,
             notice: ''
         };
         this.catalog = null;
@@ -55,6 +56,7 @@ class AIPanelHost extends React.Component {
         this.invalidateCatalog = this.invalidateCatalog.bind(this);
         this.handleClose = this.handleClose.bind(this);
         this.handleChangeTab = this.handleChangeTab.bind(this);
+        this.installContextMenu = this.installContextMenu.bind(this);
     }
 
     componentDidMount () {
@@ -63,6 +65,7 @@ class AIPanelHost extends React.Component {
         vm.on('EXTENSION_ADDED', this.invalidateCatalog);
         vm.on('BLOCKSINFO_UPDATE', this.invalidateCatalog);
         vm.on('targetsUpdate', this.invalidateCatalog);
+        this.contextMenuTimer = setInterval(this.installContextMenu, 1000);
         // Handy for debugging and automated tests.
         window.scratchAI = {vm, host: this, getCatalog: () => this.getCatalog()};
         loadClassConfigFromUrl()
@@ -75,11 +78,51 @@ class AIPanelHost extends React.Component {
     }
 
     componentWillUnmount () {
+        clearInterval(this.contextMenuTimer);
         window.removeEventListener(TOGGLE_EVENT, this.handleToggle);
         const vm = this.props.vm;
         vm.removeListener('EXTENSION_ADDED', this.invalidateCatalog);
         vm.removeListener('BLOCKSINFO_UPDATE', this.invalidateCatalog);
         vm.removeListener('targetsUpdate', this.invalidateCatalog);
+    }
+
+    /**
+     * Add "explain this" and "why doesn't this work?" to the block context menu.
+     * scratch-blocks is loaded lazily, so this retries until it is available.
+     */
+    installContextMenu () {
+        const SB = window.ScratchBlocks;
+        if (!SB || !SB.BlockSvg || !SB.ContextMenu) return;
+        clearInterval(this.contextMenuTimer);
+        if (SB.scratchAIContextMenu) return;
+        SB.scratchAIContextMenu = true;
+        const host = this;
+        let current = null;
+        const originalShowContextMenu = SB.BlockSvg.prototype.showContextMenu_;
+        SB.BlockSvg.prototype.showContextMenu_ = function (e) {
+            current = this;
+            try {
+                return originalShowContextMenu.call(this, e);
+            } finally {
+                current = null;
+            }
+        };
+        const originalShow = SB.ContextMenu.show;
+        SB.ContextMenu.show = function (e, options, rtl) {
+            const block = current;
+            const perms = permissions(host.state.modeState);
+            if (block && !block.isInFlyout && perms.tutor) {
+                options = options.concat([
+                    {text: t('🤖 AI 解釋這段程式'), enabled: true, callback: () => host.openTutor('explain', block.id)},
+                    {text: t('🤖 AI：為什麼不會動？'), enabled: true, callback: () => host.openTutor('debug', block.id)}
+                ]);
+            }
+            return originalShow.call(this, e, options, rtl);
+        };
+    }
+
+    openTutor (task, blockId) {
+        this.setState({open: true, tab: 'tutor', tutorRequest: {task, blockId, id: Date.now()}});
     }
 
     handleToggle (event) {
@@ -147,8 +190,8 @@ class AIPanelHost extends React.Component {
 
     highlightBlock (targetName, blockId) {
         const vm = this.props.vm;
-        const target = vm.runtime.targets.find(t => t.isOriginal &&
-            (t.isStage ? targetName === 'Stage' : t.getName() === targetName));
+        const target = vm.runtime.targets.find(item => item.isOriginal &&
+            (item.isStage ? targetName === 'Stage' : item.getName() === targetName));
         if (!target) return;
         if (!vm.editingTarget || vm.editingTarget.id !== target.id) vm.setEditingTarget(target.id);
         setTimeout(() => {
@@ -210,7 +253,7 @@ class AIPanelHost extends React.Component {
                 'the same language as the user',
             updateSettings: s => host.updateSettings(s),
             setModeState: s => host.setModeState(s),
-            setTemplates: t => host.setTemplates(t),
+            setTemplates: list => host.setTemplates(list),
             getCatalog: () => host.getCatalog(),
             getLibraries: () => host.getLibraries(),
             hasTextModel: () => buildChain(host.state.settings).length > 0,
@@ -221,7 +264,10 @@ class AIPanelHost extends React.Component {
             highlightBlock: (target, id) => host.highlightBlock(target, id),
             getProjectTitle: () => this.props.projectTitle,
             testImageProvider: () => host.testImageProvider(),
-            notice: this.state.notice
+            notice: this.state.notice,
+            tutorRequest: this.state.tutorRequest,
+            clearTutorRequest: () => host.setState({tutorRequest: null}),
+            openTutor: (task, blockId) => host.openTutor(task, blockId)
         };
     }
 

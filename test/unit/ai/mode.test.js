@@ -35,3 +35,15 @@ describe('modes', () => {
         expect(t).toMatchObject({studentView: 'itemResult', scoring: 'passfail', passThreshold: null});
     });
 });
+
+describe('AI modes', () => {
+    test('tutor only and generate only', () => {
+        const tutorOnly = permissions({...defaultModeState(), classConfig: normalizeClassConfig({aiMode: 'tutor'})});
+        expect(tutorOnly).toMatchObject({generate: false, tutor: true});
+        const generateOnly = permissions({...defaultModeState(), classConfig: normalizeClassConfig({aiMode: 'generate'})});
+        expect(generateOnly).toMatchObject({generate: true, tutor: false});
+        const exam = permissions({...defaultModeState(), classConfig: normalizeClassConfig({exam: true})});
+        expect(exam).toMatchObject({generate: false, tutor: false});
+        expect(normalizeClassConfig({aiMode: 'weird'}).aiMode).toBe('both');
+    });
+});

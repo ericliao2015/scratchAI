@@ -49,6 +49,7 @@ export const hashPin = async pin => {
  * @typedef {object} ClassConfig
  * @property {string} name class name
  * @property {boolean} exam exam mode: AI generation and image generation are disabled
+ * @property {string} aiMode which AI help students get: 'both' | 'tutor' | 'generate'
  * @property {object} features {generate, image, selfCheck}
  * @property {string[]} providers allowed providers (empty = all)
  * @property {object} models allowed models per provider (empty = all)
@@ -57,10 +58,17 @@ export const hashPin = async pin => {
  * @property {Array} templates grading templates students can self-check with
  */
 
+export const AI_MODES = {
+    both: '代寫與家教都開放',
+    tutor: '只開放家教（AI 只解釋、提示，不寫程式）',
+    generate: '只開放代寫'
+};
+
 export const defaultClassConfig = () => ({
     version: 1,
     name: '',
     exam: false,
+    aiMode: 'both',
     features: {generate: true, image: true, selfCheck: true},
     providers: [],
     models: {},
@@ -87,6 +95,7 @@ export const normalizeClassConfig = json => {
     delete config.keys;
     if (!Array.isArray(config.templates)) config.templates = [];
     if (!Array.isArray(config.providers)) config.providers = [];
+    if (!AI_MODES[config.aiMode]) config.aiMode = 'both';
     return config;
 };
 
@@ -99,15 +108,19 @@ export const permissions = state => {
     const config = state.classConfig;
     const teacher = state.mode === 'teacher';
     if (teacher) {
-        return {teacher, generate: true, image: true, selfCheck: true, batch: true, templates: true, exam: false};
+        const all = {generate: true, tutor: true, image: true, selfCheck: true};
+        return {teacher, ...all, batch: true, templates: true, exam: false};
     }
     if (!config) {
-        return {teacher, generate: true, image: true, selfCheck: true, batch: false, templates: false, exam: false};
+        const all = {generate: true, tutor: true, image: true, selfCheck: true};
+        return {teacher, ...all, batch: false, templates: false, exam: false};
     }
+    const aiMode = config.aiMode || 'both';
     return {
         teacher,
         exam: !!config.exam,
-        generate: !config.exam && config.features.generate !== false,
+        generate: !config.exam && config.features.generate !== false && aiMode !== 'tutor',
+        tutor: !config.exam && aiMode !== 'generate',
         image: !config.exam && config.features.image !== false,
         selfCheck: config.features.selfCheck !== false,
         batch: false,

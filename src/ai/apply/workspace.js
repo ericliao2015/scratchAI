@@ -4,6 +4,8 @@
  */
 import {STAGE_KEY} from '../ir/scope.js';
 import {blocksToWorkspaceXml} from '../preview.js';
+import {markerText} from '../provenance.js';
+import uid from '../util/uid.js';
 
 const GAP = 60;
 
@@ -57,6 +59,12 @@ export const applyViaWorkspace = async (vm, plan) => {
         if (blocks.length) {
             const xml = blocksToWorkspaceXml(vm, blocks).replace(/<variables>[\s\S]*?<\/variables>/, '');
             SB.Xml.domToWorkspace(SB.Xml.textToDom(xml), workspace);
+            // Visible AI marker with the number of blocks, inside the same undo step.
+            for (const top of blocks.filter(b => b.topLevel)) {
+                const block = workspace.getBlockById(top.id);
+                const count = block ? block.getDescendants(false).filter(d => !d.isShadow()).length : 0;
+                if (block) block.setCommentText(markerText(count), uid(), top.x + 220, top.y, true);
+            }
         }
     } finally {
         SB.Events.setGroup(false);

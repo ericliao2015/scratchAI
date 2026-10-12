@@ -68,6 +68,14 @@ export const ResultView = ({result, services, teacher}) => {
                     </tbody>
                 </table>
             )}
+            {result.ai && result.ai.totalBlocks > 0 && (
+                <div className={styles.meta}>
+                    {t('🤖 AI 產生的積木：{0}%（{1}/{2}），AI 產生 {3} 次、家教 {4} 次', [
+                        Math.round(result.ai.share * 100), result.ai.aiBlocks, result.ai.totalBlocks,
+                        result.ai.generations, result.ai.tutorCount
+                    ])}
+                </div>
+            )}
             {shown.summary && <div className={classNames(styles.message, styles.messageAi)}>{shown.summary}</div>}
             {result.model && <div className={styles.meta}>{t('AI：{0}{1}', [result.model.model, result.model.downgraded ? t('（已降級）') : ''])}</div>}
         </div>

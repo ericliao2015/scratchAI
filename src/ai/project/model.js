@@ -35,7 +35,8 @@ export const modelFromVM = vm => ({
             size: t.size,
             direction: t.direction,
             visible: t.visible,
-            blocks: clone(t.blocks._blocks)
+            blocks: clone(t.blocks._blocks),
+            comments: Object.values(t.comments || {}).map(c => ({id: c.id, blockId: c.blockId || null, text: c.text}))
         })),
     extensions: Array.from(vm.extensionManager._loadedExtensions ? vm.extensionManager._loadedExtensions.keys() : [])
 });
@@ -73,7 +74,9 @@ export const modelFromProjectJson = json => {
                 size: t.size,
                 direction: t.direction,
                 visible: t.visible,
-                blocks: sb3.deserializeBlocks(clone(t.blocks || {}))
+                blocks: sb3.deserializeBlocks(clone(t.blocks || {})),
+                comments: Object.entries(t.comments || {})
+                    .map(([id, c]) => ({id, blockId: c.blockId || null, text: c.text}))
             };
         }),
         extensions: json.extensions || []
