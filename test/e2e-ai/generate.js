@@ -45,9 +45,11 @@ const program = {
   let requestBody = null;
   await p.route('https://api.anthropic.com/v1/messages', async route => {
     requestBody = JSON.parse(route.request().postData());
+    if (Array.isArray(requestBody.system)) requestBody.system = requestBody.system.map(b => b.text).join('');
     await route.fulfill({status: 200, contentType: 'application/json', headers: {'access-control-allow-origin': '*'},
       body: JSON.stringify({content: [{type: 'text', text: JSON.stringify(program)}], stop_reason: 'end_turn', usage: {input_tokens: 9000, output_tokens: 800}})});
   });
+  await p.addInitScript(() => { try { localStorage.setItem('tw:language', 'zh-tw'); } catch (e) {} });
   await p.goto(`${BASE_URL}editor.html`);
   await p.waitForFunction(() => window.scratchAI && window.ScratchBlocks && window.ScratchBlocks.getMainWorkspace());
   await p.click('text=✨ AI 助手');

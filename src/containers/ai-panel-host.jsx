@@ -4,7 +4,9 @@ import {connect} from 'react-redux';
 import VM from 'scratch-vm';
 import AIPanel from '../components/ai-panel/ai-panel.jsx';
 import makeToolboxXML from '../lib/make-toolbox-xml';
-import {getBackdropLibrary, getCostumeLibrary, getSpriteLibrary} from '../lib/libraries/tw-async-libraries';
+import {
+    getBackdropLibrary, getCostumeLibrary, getSoundLibrary, getSpriteLibrary
+} from '../lib/libraries/tw-async-libraries';
 import {buildCatalogFromEditor} from '../ai/catalog/catalog.js';
 import {createAIClient} from '../ai/providers/runner.js';
 import {buildChain} from '../ai/providers/tiers.js';
@@ -14,6 +16,7 @@ import {loadClassConfigFromUrl, loadModeState, permissions, saveModeState} from 
 import {loadTemplates, saveTemplates} from '../ai/grade/template.js';
 import {makeIRImageGenerator} from '../ai/image/index.js';
 import {applyPlan} from '../ai/apply/apply.js';
+import {setLocale} from '../components/ai-panel/i18n.js';
 
 export const TOGGLE_EVENT = 'scratchai:toggle-panel';
 
@@ -111,9 +114,11 @@ class AIPanelHost extends React.Component {
 
     getLibraries () {
         if (!this.librariesPromise) {
-            this.librariesPromise = Promise.all([getCostumeLibrary(), getSpriteLibrary(), getBackdropLibrary()])
-                .then(([costumes, sprites, backdrops]) => ({costumes, sprites, backdrops}))
-                .catch(() => ({costumes: [], sprites: [], backdrops: []}));
+            this.librariesPromise = Promise.all([
+                getCostumeLibrary(), getSpriteLibrary(), getBackdropLibrary(), getSoundLibrary()
+            ])
+                .then(([costumes, sprites, backdrops, sounds]) => ({costumes, sprites, backdrops, sounds}))
+                .catch(() => ({costumes: [], sprites: [], backdrops: [], sounds: []}));
         }
         return this.librariesPromise;
     }
@@ -221,6 +226,7 @@ class AIPanelHost extends React.Component {
     }
 
     render () {
+        setLocale(this.props.locale);
         if (!this.state.open) return null;
         return (
             <AIPanel

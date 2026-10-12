@@ -12,6 +12,7 @@ const {chromium} = require('playwright');
   const errors = []; p.on('pageerror', e => errors.push(e.message));
   await p.route('**/weather-extension.js', route => route.fulfill({
     status: 200, contentType: 'application/javascript', body: require('fs').readFileSync(`${__dirname}/weather-extension.js`, 'utf8')}));
+  await p.addInitScript(() => { try { localStorage.setItem('tw:language', 'zh-tw'); } catch (e) {} });
   await p.goto(`${BASE_URL}editor.html`);
   await p.waitForFunction(() => window.scratchAI && window.ScratchBlocks && window.ScratchBlocks.getMainWorkspace());
   const out = await p.evaluate(async extensionUrl => {

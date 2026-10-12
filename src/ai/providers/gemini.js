@@ -67,6 +67,7 @@ export default {
             refused: candidate && (candidate.finishReason === 'SAFETY' || candidate.finishReason === 'PROHIBITED_CONTENT'),
             usage: {
                 inputTokens: body.usageMetadata ? body.usageMetadata.promptTokenCount : 0,
+                cachedTokens: body.usageMetadata ? body.usageMetadata.cachedContentTokenCount || 0 : 0,
                 outputTokens: body.usageMetadata ? body.usageMetadata.candidatesTokenCount : 0
             }
         };

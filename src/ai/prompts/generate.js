@@ -26,6 +26,7 @@ export const buildGenerateSystemPrompt = ({
     catalogText,
     spriteLibrary = [],
     backdropLibrary = [],
+    soundLibrary = [],
     imageGeneration = false,
     level = 'simple',
     language = '繁體中文'
@@ -44,6 +45,7 @@ the JSON.
     "variables": [{"name": "score", "value": 0}],      // global variables
     "lists": [{"name": "items", "items": []}],          // global lists
     "backdrops": [ <costume> ],                          // backdrops to ADD
+    "sounds": [{"library": "Xylo1"}],                    // stage sounds to ADD
     "scripts": [ <script>, ... ],
     "procedures": [ <procedure>, ... ]
   },
@@ -51,6 +53,7 @@ the JSON.
     {
       "name": "Cat",                    // an existing sprite name adds to that sprite; a new name creates a sprite
       "costumes": [ <costume> ],        // costumes to ADD (new sprites should get at least one)
+      "sounds": [{"library": "Meow"}],  // sounds to ADD, from the sound library below
       "x": 0, "y": 0, "size": 100, "direction": 90, "visible": true,   // optional
       "variables": [...], "lists": [...],                             // "for this sprite only" data
       "scripts": [ <script>, ... ],
@@ -123,6 +126,9 @@ Write "explanation" and questions in ${language}. Names of sprites, variables an
 
 # Library sprites
 ${spriteLibrary.length ? spriteLibrary.join(', ') : '(not available: use svg costumes)'}
+
+# Library sounds (add a sound to a sprite before a sound block uses it; menus take the sound name)
+${soundLibrary.length ? soundLibrary.join(', ') : '(not available)'}
 
 # Library backdrops
 ${backdropLibrary.length ? backdropLibrary.join(', ') : '(not available: use svg backdrops)'}

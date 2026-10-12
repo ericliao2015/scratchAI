@@ -30,7 +30,7 @@ describe('anthropic adapter', () => {
         const call = fetchImpl.calls[0];
         expect(call.url).toBe('https://api.anthropic.com/v1/messages');
         expect(call.init.headers['anthropic-dangerous-direct-browser-access']).toBe('true');
-        expect(call.body.system).toBe('sys');
+        expect(call.body.system).toEqual([{type: 'text', text: 'sys', cache_control: {type: 'ephemeral'}}]);
         expect(call.body).not.toHaveProperty('temperature');
     });
 

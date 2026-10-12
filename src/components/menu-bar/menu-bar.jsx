@@ -1017,7 +1017,7 @@ class MenuBar extends React.Component {
                             className={classNames(styles.feedbackButton, styles.aiButton)}
                             onClick={() => window.dispatchEvent(new CustomEvent('scratchai:toggle-panel'))}
                         >
-                            {'✨ AI 助手'}
+                            {String(this.props.locale).startsWith('zh') ? '✨ AI 助手' : '✨ AI Assistant'}
                         </Button>
                     </div>
                     {/* tw: add a feedback button */}

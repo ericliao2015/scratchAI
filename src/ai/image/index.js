@@ -49,7 +49,7 @@ export const generateCostumes = async ({
 
     for (let i = 1; i < Math.min(frames, POSES.length + 1); i++) {
         const pose = POSES[i - 1];
-        onStatus(`產生動畫造型 ${i + 1}/${frames}…`);
+        onStatus('產生動畫造型 {0}/{1}…', [i + 1, frames]);
         let bytes;
         try {
             [bytes] = await provider.edit({

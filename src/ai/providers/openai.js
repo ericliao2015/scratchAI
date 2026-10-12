@@ -72,6 +72,8 @@ export const createOpenAIAdapter = ({id, label, defaultBaseUrl, requiresKey = tr
             truncated: choice && choice.finish_reason === 'length',
             usage: {
                 inputTokens: body.usage ? body.usage.prompt_tokens : 0,
+                cachedTokens: body.usage && body.usage.prompt_tokens_details ?
+                    body.usage.prompt_tokens_details.cached_tokens || 0 : 0,
                 outputTokens: body.usage ? body.usage.completion_tokens : 0
             }
         };

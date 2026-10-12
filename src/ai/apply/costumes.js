@@ -155,3 +155,29 @@ export const placeholderCostume = name => {
         bitmapResolution: 1
     };
 };
+
+/**
+ * Resolve an IR sound spec ({library: "Meow"} or "Meow") from the sound library.
+ * @param {object|string} spec sound spec
+ * @param {object} options {storage, libraries}
+ * @returns {Promise<?object>} sound {name, assetId, ext, rate, sampleCount, asset}, or null
+ */
+export const resolveSound = async (spec, {storage, libraries}) => {
+    if (typeof spec === 'string') spec = {library: spec};
+    if (!spec || !spec.library || !libraries || !storage) return null;
+    const wanted = normalize(spec.library);
+    const list = libraries.sounds || [];
+    const item = list.find(s => normalize(s.name) === wanted) || list.find(s => normalize(s.name).startsWith(wanted));
+    if (!item) return null;
+    const ext = (item.md5ext || '').split('.').pop() || item.dataFormat || 'wav';
+    const asset = await storage.load(storage.AssetType.Sound, item.assetId, ext);
+    if (!asset) return null;
+    return {
+        name: spec.name || item.name,
+        assetId: item.assetId,
+        ext,
+        rate: item.rate,
+        sampleCount: item.sampleCount,
+        asset
+    };
+};

@@ -31,6 +31,7 @@ const ready = p => p.waitForFunction(() => window.scratchAI && window.ScratchBlo
     await route.fulfill({status: 200, contentType: 'application/json', headers: {'access-control-allow-origin': '*'},
       body: JSON.stringify({content: [{type: 'text', text: JSON.stringify(ANSWER)}], stop_reason: 'end_turn', usage: {input_tokens: 1, output_tokens: 1}})});
   });
+  await p.addInitScript(() => { try { localStorage.setItem('tw:language', 'zh-tw'); } catch (e) {} });
   await p.goto(`${BASE_URL}editor.html`);
   await ready(p);
   const sb3 = Buffer.from(await p.evaluate(async () => Array.from(new Uint8Array(await window.scratchAI.vm.saveProjectSb3('arraybuffer')))));
@@ -79,6 +80,7 @@ const ready = p => p.waitForFunction(() => window.scratchAI && window.ScratchBlo
 
   // --- student imports the config in a fresh browser profile
   const student = await (await b.newContext({viewport: {width: 1400, height: 900}})).newPage();
+  await student.addInitScript(() => { try { localStorage.setItem('tw:language', 'zh-tw'); } catch (e) {} });
   await student.goto(`${BASE_URL}editor.html`);
   await ready(student);
   await student.click('text=✨ AI 助手');

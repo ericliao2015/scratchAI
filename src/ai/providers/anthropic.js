@@ -45,7 +45,8 @@ export default {
             max_tokens: maxTokens || 16000,
             messages: messages.map(m => ({role: m.role, content: m.content}))
         };
-        if (system) payload.system = system;
+        // The system prompt (rules + block catalog) is identical across requests: cache it.
+        if (system) payload.system = [{type: 'text', text: system, cache_control: {type: 'ephemeral'}}];
         const body = await fetchJson(`${BASE_URL}/messages`, {
             method: 'POST',
             headers: headers(apiKey),
@@ -65,7 +66,10 @@ export default {
             truncated: body.stop_reason === 'max_tokens',
             refused: body.stop_reason === 'refusal',
             usage: {
-                inputTokens: body.usage ? body.usage.input_tokens : 0,
+                inputTokens: body.usage ?
+                    (body.usage.input_tokens || 0) + (body.usage.cache_read_input_tokens || 0) +
+                    (body.usage.cache_creation_input_tokens || 0) : 0,
+                cachedTokens: body.usage ? body.usage.cache_read_input_tokens || 0 : 0,
                 outputTokens: body.usage ? body.usage.output_tokens : 0
             }
         };

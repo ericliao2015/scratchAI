@@ -5,6 +5,7 @@ import {extractJson} from './json.js';
 import {compileProgram} from './ir/compile.js';
 import {OP_NAMES, applyOps} from './apply/patch.js';
 import {applyPlan, restoreSnapshot, snapshotProject} from './apply/apply.js';
+import {applyViaWorkspace, canApplyViaWorkspace} from './apply/workspace.js';
 import {modelFromVM} from './project/model.js';
 import {projectToText} from './project/serialize.js';
 import {formatCatalog} from './catalog/format.js';
@@ -57,13 +58,15 @@ export const generate = async ({
     ];
 
     let lastErrors = [];
-    const usage = {inputTokens: 0, outputTokens: 0};
+    const usage = {inputTokens: 0, outputTokens: 0, cachedTokens: 0};
     let response = null;
     for (let attempt = 0; attempt <= MAX_REPAIRS; attempt++) {
-        onStatus(attempt === 0 ? 'AI 思考中…' : `修正中（第 ${attempt} 次）…`);
+        if (attempt === 0) onStatus('AI 思考中…');
+        else onStatus('修正中（第 {0} 次）…', [attempt]);
         response = await client.complete({system, messages, json: true, maxTokens: 16000}, {signal, onBeforeFallback});
         usage.inputTokens += (response.usage && response.usage.inputTokens) || 0;
         usage.outputTokens += (response.usage && response.usage.outputTokens) || 0;
+        usage.cachedTokens += (response.usage && response.usage.cachedTokens) || 0;
         messages.push({role: 'assistant', content: response.text});
 
         let ir;
@@ -136,6 +139,7 @@ export const summarizeProgram = result => {
         variables: plan.variables.map(v => v.name),
         broadcasts: plan.broadcasts.map(b => b.name),
         costumes: plan.sprites.reduce((n, s) => n + s.costumes.length, 0) + plan.stage.backdrops.length,
+        sounds: plan.sprites.reduce((n, s) => n + s.sounds.length, 0) + (plan.stage.sounds || []).length,
         ops: result.ops.length
     };
 };
@@ -159,7 +163,10 @@ export const applyGenerated = async ({vm, catalog, result, libraries, generateIm
         }
         // Compile again against the project as it is now (ops may have renamed things).
         const compiled = compileProgram(result.ir, {catalog, model: modelFromVM(vm)});
-        const summary = await applyPlan(vm, compiled.plan, {libraries, generateImage, onProgress: onStatus});
+        // Simple additions go through the block editor so Ctrl+Z can undo them.
+        const summary = canApplyViaWorkspace(vm, compiled.plan, result.ops) ?
+            await applyViaWorkspace(vm, compiled.plan) :
+            await applyPlan(vm, compiled.plan, {libraries, generateImage, onProgress: onStatus});
         warnings.push(...summary.warnings);
         return {snapshot, summary, opErrors, warnings};
     } catch (e) {

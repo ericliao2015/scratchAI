@@ -28,6 +28,7 @@ const {chromium} = require('playwright');
   const anthropicCalls = [];
   await p.route('https://api.anthropic.com/v1/messages', async route => {
     const body = JSON.parse(route.request().postData());
+    if (Array.isArray(body.system)) body.system = body.system.map(b => b.text).join('');
     anthropicCalls.push(body.system.slice(0, 60));
     let text;
     if (body.system.includes('review picture requests')) text = '{"ok": true, "reason": ""}';
@@ -46,6 +47,7 @@ const {chromium} = require('playwright');
       body: JSON.stringify({data: [{b64_json: pngBase64}]})});
   });
 
+  await p.addInitScript(() => { try { localStorage.setItem('tw:language', 'zh-tw'); } catch (e) {} });
   await p.goto(`${BASE_URL}editor.html`);
   await p.waitForFunction(() => window.scratchAI && window.ScratchBlocks && window.ScratchBlocks.getMainWorkspace());
   const blankSb3 = await p.evaluate(async () => Array.from(new Uint8Array(await window.scratchAI.vm.saveProjectSb3('arraybuffer'))));

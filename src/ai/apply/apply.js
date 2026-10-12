@@ -3,7 +3,7 @@
  */
 import JSZip from '@turbowarp/jszip';
 import {STAGE_KEY} from '../ir/scope.js';
-import {placeholderCostume, resolveCostume} from './costumes.js';
+import {placeholderCostume, resolveCostume, resolveSound} from './costumes.js';
 
 const SCRIPT_X_GAP = 450;
 
@@ -42,14 +42,25 @@ const uniqueNames = costumes => {
     });
 };
 
+const soundJson = sound => ({
+    name: sound.name,
+    assetId: sound.assetId,
+    dataFormat: sound.ext,
+    format: '',
+    rate: sound.rate,
+    sampleCount: sound.sampleCount,
+    md5ext: `${sound.assetId}.${sound.ext}`
+});
+
 /**
  * Build a .sprite3 file in memory and add it to the VM.
  * @param {object} vm VM
  * @param {string} name sprite name
  * @param {Array} costumes resolved costumes
+ * @param {Array} sounds resolved sounds
  * @returns {Promise<object>} the new target
  */
-const addSprite = async (vm, name, costumes) => {
+const addSprite = async (vm, name, costumes, sounds = []) => {
     const storage = vm.runtime.storage;
     const zip = new JSZip();
     const costumeEntries = uniqueNames(costumes).map(costume => {
@@ -67,7 +78,10 @@ const addSprite = async (vm, name, costumes) => {
         comments: {},
         currentCostume: 0,
         costumes: costumeEntries,
-        sounds: [],
+        sounds: sounds.map(sound => {
+            zip.file(`${sound.assetId}.${sound.ext}`, sound.asset.data);
+            return soundJson(sound);
+        }),
         volume: 100,
         visible: true,
         x: 0,
@@ -91,6 +105,13 @@ const addCostumes = async (vm, target, costumes) => {
         const asset = createCostumeAsset(storage, costume);
         const json = costumeJson(costume, asset.assetId);
         await vm.addCostume(json.md5ext, {...json, md5: json.md5ext, asset}, target.id);
+    }
+};
+
+const addSounds = async (vm, target, sounds) => {
+    for (const sound of sounds) {
+        const json = soundJson(sound);
+        await vm.addSound({...json, md5: json.md5ext, asset: sound.asset}, target.id);
     }
 };
 
@@ -166,9 +187,25 @@ export const applyPlan = async (vm, plan, {libraries = null, generateImage = nul
     const storage = runtime.storage;
     const stage = runtime.getTargetForStage();
     const warnings = [];
-    const summary = {spritesCreated: [], scriptsAdded: 0, variablesCreated: 0, costumesAdded: 0, warnings};
+    const summary = {
+        spritesCreated: [], scriptsAdded: 0, variablesCreated: 0, costumesAdded: 0, soundsAdded: 0, warnings
+    };
     const targetsByKey = new Map([[STAGE_KEY, stage]]);
     const resolveOptions = {storage, libraries, generateImage};
+
+    const resolveSounds = async specs => {
+        const result = [];
+        for (const spec of specs) {
+            try {
+                const sound = await resolveSound(spec, {storage, libraries});
+                if (sound) result.push(sound);
+                else warnings.push(`找不到音效「${JSON.stringify(spec).slice(0, 60)}」，已略過。`);
+            } catch (e) {
+                warnings.push(`音效載入失敗：${e.message}`);
+            }
+        }
+        return result;
+    };
 
     const resolveAll = async (specs, {isBackdrop, fallbackName}) => {
         const result = [];
@@ -186,19 +223,28 @@ export const applyPlan = async (vm, plan, {libraries = null, generateImage = nul
 
     // 1. Sprites
     for (const sprite of plan.sprites) {
-        onProgress(`準備角色「${sprite.name}」`);
+        onProgress('準備角色「{0}」', [sprite.name]);
         let target = runtime.targets.find(t => t.isOriginal && !t.isStage && t.getName() === sprite.name);
         const costumes = await resolveAll(sprite.costumes, {isBackdrop: false, fallbackName: sprite.name});
-        if (!target) {
-            target = await addSprite(vm, sprite.name, costumes.length ? costumes : [placeholderCostume(sprite.name)]);
+        const sounds = await resolveSounds(sprite.sounds || []);
+        if (target) {
+            if (costumes.length) await addCostumes(vm, target, costumes);
+            if (sounds.length) await addSounds(vm, target, sounds);
+        } else {
+            target = await addSprite(vm, sprite.name, costumes.length ? costumes : [placeholderCostume(sprite.name)],
+                sounds);
             summary.spritesCreated.push(target.getName());
-            summary.costumesAdded += costumes.length;
-        } else if (costumes.length) {
-            await addCostumes(vm, target, costumes);
-            summary.costumesAdded += costumes.length;
         }
+        summary.costumesAdded += costumes.length;
+        summary.soundsAdded += sounds.length;
         setProps(target, sprite.props || {});
         targetsByKey.set(sprite.name, target);
+    }
+
+    if (plan.stage && plan.stage.sounds && plan.stage.sounds.length) {
+        const sounds = await resolveSounds(plan.stage.sounds);
+        await addSounds(vm, stage, sounds);
+        summary.soundsAdded += sounds.length;
     }
 
     // 2. Backdrops
@@ -225,7 +271,7 @@ export const applyPlan = async (vm, plan, {libraries = null, generateImage = nul
             warnings.push(`找不到角色「${group.target}」，腳本未加入。`);
             continue;
         }
-        onProgress(`加入「${target.getName()}」的腳本`);
+        onProgress('加入「{0}」的腳本', [target.getName()]);
         const existingX = rightmostScriptX(target);
         const offsetX = existingX === null ? 0 : existingX + SCRIPT_X_GAP;
         const blocks = group.blocks.map(block => (block.topLevel ?

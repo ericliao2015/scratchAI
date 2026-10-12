@@ -317,3 +317,39 @@
     background: $looks-secondary;
     transition: width 0.2s;
 }
+
+.panel-collapsed {
+    bottom: auto;
+    width: 260px !important;
+    border-radius: 0 0 0 8px;
+}
+
+.resize-handle {
+    position: absolute;
+    left: -4px;
+    top: 0;
+    bottom: 0;
+    width: 8px;
+    cursor: ew-resize;
+    z-index: 1;
+}
+.resize-handle:hover {
+    background: $looks-transparent;
+}
+
+.preview {
+    margin: 0.5rem 0;
+}
+.preview-workspace {
+    width: 100%;
+    border: 1px solid $ui-black-transparent;
+    border-radius: 6px;
+    overflow: hidden;
+    background: $ui-white;
+}
+
+.chip-selected {
+    border-color: $looks-secondary;
+    color: $looks-secondary;
+    font-weight: bold;
+}

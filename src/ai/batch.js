@@ -209,7 +209,7 @@ export const batchModify = async ({
     for (let index = 0; index < projects.length; index++) {
         if (signal && signal.aborted) break;
         const project = projects[index];
-        onStatus(`處理 ${index + 1}/${projects.length}：${project.fileName}`);
+        onStatus('處理 {0}/{1}：{2}', [index + 1, projects.length, project.fileName]);
         let entry;
         try {
             const vm = await loadHeadlessVM(storage, project.data);

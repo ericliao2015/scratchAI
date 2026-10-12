@@ -645,6 +645,7 @@ class Compiler {
             return info;
         });
         this.plan.stage.backdrops = Array.isArray(stageSpec.backdrops) ? stageSpec.backdrops : [];
+        this.plan.stage.sounds = Array.isArray(stageSpec.sounds) ? stageSpec.sounds : [];
 
         this.compileTargetCode(this.scope.stage, stageSpec, 'stage');
         sprites.forEach((sprite, i) => {
