@@ -3,6 +3,7 @@ import React, {useState} from 'react';
 import classNames from 'classnames';
 import styles from './ai-panel.css';
 import {SCORING, STUDENT_VIEWS, emptyTemplate, normalizeTemplate} from '../../ai/grade/template.js';
+import {loadSavedPacks} from '../../ai/missions/pack.js';
 import {RULE_DESCRIPTIONS} from '../../ai/grade/rules.js';
 import {draftTemplate} from '../../ai/grade/grade.js';
 import {AI_MODES, defaultClassConfig, normalizeClassConfig} from '../../ai/mode.js';
@@ -158,12 +159,16 @@ const ClassConfigEditor = ({services}) => {
         templates: []
     }));
     const [selected, setSelected] = useState(() => templates.map(tpl => tpl.id));
+    const [savedPacks] = useState(loadSavedPacks);
+    const [selectedPacks, setSelectedPacks] = useState(() => savedPacks.map(pack => pack.id));
+    const missionPacks = () => savedPacks.filter(pack => selectedPacks.includes(pack.id));
 
     const exportConfig = () => {
         const data = {
             ...config,
             teacherPinHash: modeState.pinHash || '',
-            templates: templates.filter(tpl => selected.includes(tpl.id))
+            templates: templates.filter(tpl => selected.includes(tpl.id)),
+            missionPacks: missionPacks()
         };
         downloadBlob(`class-${config.name || 'config'}.json`, new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'}));
     };
@@ -172,7 +177,10 @@ const ClassConfigEditor = ({services}) => {
         services.setModeState({
             ...modeState,
             classConfig: normalizeClassConfig({
-                ...config, teacherPinHash: modeState.pinHash || '', templates: templates.filter(tpl => selected.includes(tpl.id))
+                ...config,
+                teacherPinHash: modeState.pinHash || '',
+                templates: templates.filter(tpl => selected.includes(tpl.id)),
+                missionPacks: missionPacks()
             })
         });
     };
@@ -219,6 +227,7 @@ const ClassConfigEditor = ({services}) => {
             {feature('generate', t('允許 AI 產生積木'))}
             {feature('image', t('允許 AI 生圖'))}
             {feature('selfCheck', t('允許學生自我檢查'))}
+            {feature('missions', t('開放任務（自學任務包）'))}
             <div className={styles.row}>
                 <span>{t('每人每天生圖上限')}</span>
                 <input
@@ -254,6 +263,19 @@ const ClassConfigEditor = ({services}) => {
                 <option value="simple">{t('簡易')}</option>
                 <option value="advanced">{t('進階')}</option>
             </select>
+            <label className={styles.label}>{t('包含的任務包（在「任務」分頁匯入或用 AI 出題後會出現在這裡）')}</label>
+            {savedPacks.length === 0 && <p className={styles.meta}>{t('（沒有任務包；內建的入門任務包一律提供）')}</p>}
+            {savedPacks.map(pack => (
+                <label key={pack.id} className={styles.checkbox}>
+                    <input
+                        type="checkbox"
+                        checked={selectedPacks.includes(pack.id)}
+                        onChange={e => setSelectedPacks(e.target.checked ? [...selectedPacks, pack.id] :
+                            selectedPacks.filter(id => id !== pack.id))}
+                    />
+                    {t('{0}（{1} 個任務）', [pack.title, pack.missions.length])}
+                </label>
+            ))}
             <label className={styles.label}>{t('包含的範本（學生自我檢查用）')}</label>
             {templates.map(tpl => (
                 <label key={tpl.id} className={styles.checkbox}>

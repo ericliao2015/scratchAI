@@ -50,7 +50,8 @@ export const normalizeTemplate = json => {
         version: Number(json.version) || 1,
         items,
         scoring: json.scoring === 'passfail' ? 'passfail' : 'points',
-        passThreshold: Number.isFinite(Number(json.passThreshold)) ? Number(json.passThreshold) : null,
+        passThreshold: json.passThreshold !== null && json.passThreshold !== '' &&
+            Number.isFinite(Number(json.passThreshold)) ? Number(json.passThreshold) : null,
         studentView: STUDENT_VIEWS[json.studentView] ? json.studentView : 'itemResult',
         feedbackStyle: json.feedbackStyle === 'teacher' ? 'teacher' : 'student',
         notes: String(json.notes || '')

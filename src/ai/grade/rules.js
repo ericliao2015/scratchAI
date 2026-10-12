@@ -58,7 +58,38 @@ const result = (pass, detail, matches = []) => ({
     evidence: matches.slice(0, 10).map(m => ({blockId: m.block.id, target: m.target.name}))
 });
 
+/**
+ * Shape of a script: opcodes of stack blocks and their substacks, ignoring inputs.
+ * @param {Array} nodes IR blocks
+ * @returns {Array} shape
+ */
+export const irShape = nodes => (Array.isArray(nodes) ? nodes : []).filter(n => n && typeof n === 'object')
+    .map(n => ({
+        op: n.call ? 'procedures_call' : n.opcode,
+        subs: ['SUBSTACK', 'SUBSTACK2'].map(key => irShape(n.substacks && n.substacks[key]))
+    }));
+
+const modelShape = (blocks, id) => {
+    const shape = [];
+    const sub = (block, key) => (block.inputs[key] && block.inputs[key].block ?
+        modelShape(blocks, block.inputs[key].block) : []);
+    for (let block = blocks[id]; block; block = block.next ? blocks[block.next] : null) {
+        shape.push({op: block.opcode, subs: [sub(block, 'SUBSTACK'), sub(block, 'SUBSTACK2')]});
+    }
+    return shape;
+};
+
+const sameShape = (a, b) => a.length === b.length &&
+    a.every((x, i) => x.op === b[i].op && sameShape(x.subs[0], b[i].subs[0]) && sameShape(x.subs[1], b[i].subs[1]));
+
 export const RULES = {
+    matchesScript (model, check) {
+        const wanted = irShape(check.matchesScript);
+        const found = targetsFor(model, check).flatMap(target => topBlocks(target)
+            .filter(top => sameShape(modelShape(target.blocks, top.id), wanted))
+            .map(top => ({block: top, target})));
+        return result(found.length > 0, found.length ? '找到結構相同的腳本' : '沒有找到結構相同的腳本（檢查積木的順序和位置）', found);
+    },
     usesOpcode (model, check) {
         const opcodes = asList(check.usesOpcode);
         const found = reachableBlocks(targetsFor(model, check)).filter(m => opcodes.includes(m.block.opcode));
@@ -175,7 +206,8 @@ export const RULE_DESCRIPTIONS = {
     customBlockDefined: '定義自訂積木',
     customBlockUsed: '呼叫自訂積木',
     usesExtension: '使用某個擴充（如 pen、music）',
-    usesClone: '使用分身'
+    usesClone: '使用分身',
+    matchesScript: '有一段結構相同的腳本（積木順序與巢狀，忽略數值）'
 };
 
 /**

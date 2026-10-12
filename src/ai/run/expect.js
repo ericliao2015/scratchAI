@@ -94,7 +94,7 @@ export const describeExpectation = exp => {
     if (exp.label) return String(exp.label);
     const when = typeof exp.at === 'undefined' || exp.at === 'end' ? '結束時' : `${exp.at} 秒時`;
     if (typeof exp.said !== 'undefined') return `${exp.sprite || '有角色'}說出「${exp.said}」`;
-    let subject = `${exp.sprite} 的 ${exp.prop || 'x'}`;
+    let subject = `${exp.sprite || '角色'}的 ${exp.prop || 'x'}`;
     if (exp.prop === 'backdrop') subject = '背景';
     if (typeof exp.var !== 'undefined') subject = `變數「${exp.var}」`;
     const op = exp.op || '=';
@@ -125,6 +125,14 @@ export const checkExpectations = (trace, expectations = []) => expectations.map(
                 .join(' / ') : '（沒有說話）',
             expected: String(exp.said)
         };
+    }
+    // A sprite check without a sprite name passes when any sprite satisfies it.
+    if (typeof exp.var === 'undefined' && exp.prop !== 'backdrop' && !exp.sprite) {
+        const last = trace.samples[trace.samples.length - 1];
+        const names = last ? Object.keys(last.sprites) : [];
+        const tries = names.map(name => checkExpectations(trace, [{...exp, sprite: name}])[0]);
+        const hit = tries.find(r => r.pass) || tries[0];
+        return hit ? {...hit, label} : {pass: false, label, actual: '（沒有角色）', expected: String(exp.value)};
     }
     const actual = valueIn(sampleAt(trace, exp.at), exp);
     const before = valueIn(sampleAt(trace, typeof exp.from === 'undefined' ? 0 : exp.from), exp);

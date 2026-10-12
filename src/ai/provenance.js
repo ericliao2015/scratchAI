@@ -202,7 +202,7 @@ export const aiUsageSummary = model => {
         aiBlocks: ai,
         totalBlocks: total,
         generations: entries.filter(e => e.mode === 'generate').length,
-        tutorCount: entries.filter(e => e.mode !== 'generate').length,
+        tutorCount: entries.filter(e => e.mode !== 'generate' && !String(e.mode).startsWith('mission')).length,
         lastUsed: entries.length ? entries[entries.length - 1].t : null,
         entries
     };

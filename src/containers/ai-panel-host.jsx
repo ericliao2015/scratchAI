@@ -249,6 +249,7 @@ class AIPanelHost extends React.Component {
             modeState,
             templates,
             permissions: perms,
+            locale: this.props.locale || 'en',
             language: LANGUAGES[this.props.locale] || LANGUAGES[(this.props.locale || '').split('-')[0]] ||
                 'the same language as the user',
             updateSettings: s => host.updateSettings(s),

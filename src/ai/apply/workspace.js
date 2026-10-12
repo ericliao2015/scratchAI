@@ -32,9 +32,10 @@ export const canApplyViaWorkspace = (vm, plan, ops) => {
 /**
  * @param {object} vm VM
  * @param {object} plan compiled plan (must pass canApplyViaWorkspace)
+ * @param {object} [options] {marker: add the visible AI marker comments}
  * @returns {Promise<object>} summary like applyPlan's
  */
-export const applyViaWorkspace = async (vm, plan) => {
+export const applyViaWorkspace = async (vm, plan, {marker = true} = {}) => {
     const SB = window.ScratchBlocks;
     const workspace = SB.getMainWorkspace();
     const box = workspace.getBlocksBoundingBox();
@@ -60,7 +61,7 @@ export const applyViaWorkspace = async (vm, plan) => {
             const xml = blocksToWorkspaceXml(vm, blocks).replace(/<variables>[\s\S]*?<\/variables>/, '');
             SB.Xml.domToWorkspace(SB.Xml.textToDom(xml), workspace);
             // Visible AI marker with the number of blocks, inside the same undo step.
-            for (const top of blocks.filter(b => b.topLevel)) {
+            for (const top of marker ? blocks.filter(b => b.topLevel) : []) {
                 const block = workspace.getBlockById(top.id);
                 const count = block ? block.getDescendants(false).filter(d => !d.isShadow()).length : 0;
                 if (block) block.setCommentText(markerText(count), uid(), top.x + 220, top.y, true);

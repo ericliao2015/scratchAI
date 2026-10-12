@@ -369,3 +369,54 @@
     margin-top: 0.4rem;
     font-style: italic;
 }
+
+.message-pass {
+    background: #e3f6e9;
+    border: 1px solid #8fd0a5;
+    color: #0b5e30;
+    font-weight: bold;
+}
+
+.progress-bar {
+    height: 0.4rem;
+    background: #eee;
+    border-radius: 0.2rem;
+    overflow: hidden;
+    margin: 0.25rem 0 0.5rem;
+}
+.progress-fill {
+    height: 100%;
+    background: #2fb36b;
+    transition: width 0.3s;
+}
+
+.mission-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 0.5rem;
+}
+.mission-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.35rem 0.5rem;
+    margin-bottom: 0.2rem;
+    border: 1px solid #ddd;
+    border-radius: 0.4rem;
+    background: white;
+    cursor: pointer;
+    text-align: left;
+    font: inherit;
+}
+.mission-item:hover {
+    border-color: #ff4c4c;
+}
+.mission-active {
+    border-color: #ff4c4c;
+    background: #fff3f3;
+}
+.mission-title {
+    margin: 0 0 0.25rem;
+    font-size: 1rem;
+}
