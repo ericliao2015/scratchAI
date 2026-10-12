@@ -233,3 +233,10 @@
     color: inherit;
     text-decoration: none;
 }
+
+/* scratchAI: AI assistant button */
+.ai-button {
+    font-weight: bold;
+    color: $looks-secondary;
+    cursor: pointer;
+}

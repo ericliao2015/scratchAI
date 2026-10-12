@@ -139,14 +139,20 @@ ${catalogText}
  * @param {string} options.request what the user asked for
  * @returns {string} user message
  */
-export const buildGenerateUserMessage = ({projectText, editingTarget, request}) => `# Current project
+export const buildGenerateUserMessage = ({projectText, editingTarget, request, extra = ''}) => `# Current project
 ${projectText}
 
 The user is currently editing: ${editingTarget ? `"${editingTarget}"` : 'the stage'}.
 If the request does not name a sprite, it is probably about this one.
-
+${extra ? `\n${extra}\n` : ''}
 # Request
 ${request}`;
+
+/** Extra instructions when one answer is applied to many students' projects. */
+export const BATCH_INSTRUCTIONS = `IMPORTANT: your answer will be applied to MANY different student projects that
+are similar to the one shown. Block aliases (#12) differ between projects, so in ops use a matcher object instead
+of an alias: "block": {"opcode": "motion_movesteps", "fields": {...}, "inputs": {"STEPS": 10}, "index": 0}.
+Refer to sprites by name. Do not use "ask a question" responses.`;
 
 /**
  * Feedback sent back to the model when its JSON did not compile.

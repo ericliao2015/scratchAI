@@ -1011,6 +1011,15 @@ class MenuBar extends React.Component {
                             />
                         ) : []))}
                     </div>
+                    {/* scratchAI: open the AI assistant */}
+                    <div className={styles.menuBarItem}>
+                        <Button
+                            className={classNames(styles.feedbackButton, styles.aiButton)}
+                            onClick={() => window.dispatchEvent(new CustomEvent('scratchai:toggle-panel'))}
+                        >
+                            {'✨ AI 助手'}
+                        </Button>
+                    </div>
                     {/* tw: add a feedback button */}
                     <div className={styles.menuBarItem}>
                         <a

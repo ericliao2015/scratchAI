@@ -31,6 +31,8 @@ import ConnectionModal from '../../containers/connection-modal.jsx';
 import TelemetryModal from '../telemetry-modal/telemetry-modal.jsx';
 import TWUsernameModal from '../../containers/tw-username-modal.jsx';
 import TWSettingsModal from '../../containers/tw-settings-modal.jsx';
+// scratchAI: AI assistant panel
+import AIPanelHost from '../../containers/ai-panel-host.jsx';
 import TWSecurityManager from '../../containers/tw-security-manager.jsx';
 import TWCustomExtensionModal from '../../containers/tw-custom-extension-modal.jsx';
 import TWRestorePointManager from '../../containers/tw-restore-point-manager.jsx';
@@ -450,6 +452,8 @@ const GUIComponent = props => {
                     </Box>
                 </Box>
                 <DragLayer />
+                {/* scratchAI: AI assistant panel */}
+                <AIPanelHost vm={vm} />
             </Box>
         );
     }}</MediaQuery>);

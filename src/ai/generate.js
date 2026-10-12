@@ -37,7 +37,8 @@ const validateOps = ops => {
  * @returns {Promise<object>} {type: 'question'|'program', ...}
  */
 export const generate = async ({
-    client, vm, catalog, request, history = [], promptOptions = {}, onStatus = () => {}, signal
+    client, vm, catalog, request, history = [], promptOptions = {}, onStatus = () => {}, signal,
+    extraInstructions = '', onBeforeFallback
 }) => {
     const model = modelFromVM(vm);
     const {text: projectText, ids} = projectToText(model, {catalog});
@@ -49,7 +50,8 @@ export const generate = async ({
             content: buildGenerateUserMessage({
                 projectText,
                 editingTarget: vm.editingTarget && !vm.editingTarget.isStage ? vm.editingTarget.getName() : null,
-                request
+                request,
+                extra: extraInstructions
             })
         }
     ];
@@ -59,7 +61,7 @@ export const generate = async ({
     let response = null;
     for (let attempt = 0; attempt <= MAX_REPAIRS; attempt++) {
         onStatus(attempt === 0 ? 'AI 思考中…' : `修正中（第 ${attempt} 次）…`);
-        response = await client.complete({system, messages, json: true, maxTokens: 16000}, {signal});
+        response = await client.complete({system, messages, json: true, maxTokens: 16000}, {signal, onBeforeFallback});
         usage.inputTokens += response.usage && response.usage.inputTokens || 0;
         usage.outputTokens += response.usage && response.usage.outputTokens || 0;
         messages.push({role: 'assistant', content: response.text});
