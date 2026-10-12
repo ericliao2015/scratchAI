@@ -239,6 +239,7 @@ const ClassConfigEditor = ({services}) => {
             {feature('image', t('允許 AI 生圖'))}
             {feature('selfCheck', t('允許學生自我檢查'))}
             {feature('missions', t('開放任務（自學任務包）'))}
+            {feature('audio', t('允許 AI 音效與音樂'))}
             <div className={styles.row}>
                 <span>{t('每人每天生圖上限')}</span>
                 <input

@@ -28,6 +28,7 @@ M0～M10 已全部完成，程式位置見 README 的「程式架構」。與原
 | P3 | 背景執行引擎（虛擬時鐘、模擬按鍵／點擊／廣播）、產生後自動測試與修正、批改「執行測試」項目、除錯時附執行報告 | `run/engine.js`、`run/expect.js`、`run/verify.js` |
 | P4 | 任務包（自己完成／積木排序／找錯誤）、進度、提示、AI 出題、班級設定可附任務包 | `missions/`、`missions-tab.jsx` |
 | P5 | 班級閘道 v2（班級代碼、每日額度、模型備援、用量統計）、本機模型 WebLLM（只用於家教，依請求用途分流） | `server/`、`providers/gateway.js`、`providers/webllm.js` |
+| 音訊 | AI 音效（14 種預設＋AI 設計參數）與背景循環音樂（9 種風格，內建作曲或 AI 作曲），瀏覽器內合成 WAV；產生積木可直接要求 `{"sfx"}`／`{"music"}` 音效 | `audio/`、`audio-tab.jsx` |
 | P6 | 後端介面（身分、繳交、雲端專案）：本機與閘道兩種實作；老師「班級」分頁收作業並送批次批改 | `backend/index.js`、`classroom-tab.jsx` |
 
 ## 1. 需求決策紀錄

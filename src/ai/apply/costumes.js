@@ -2,6 +2,7 @@
  * Resolves IR costume specs ({library}, {svg}, {generate}, resolved image data) into
  * costume data the VM can load.
  */
+import {soundAsset, soundFromSpec} from '../audio/index.js';
 
 const encoder = typeof TextEncoder === 'undefined' ? null : new TextEncoder();
 
@@ -164,6 +165,9 @@ export const placeholderCostume = name => {
  */
 export const resolveSound = async (spec, {storage, libraries}) => {
     if (typeof spec === 'string') spec = {library: spec};
+    // Synthesized effects and loop music ({"sfx": "jump"}, {"music": "happy"}).
+    const generated = storage && soundFromSpec(spec);
+    if (generated) return soundAsset(storage, generated);
     if (!spec || !spec.library || !libraries || !storage) return null;
     const wanted = normalize(spec.library);
     const list = libraries.sounds || [];

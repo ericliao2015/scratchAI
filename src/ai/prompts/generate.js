@@ -2,6 +2,8 @@
  * Prompt for turning a request into blocks. The system prompt is stable for a given
  * catalog so providers can cache it; the project state goes in the user message.
  */
+import {SFX_PRESETS} from '../audio/sfx.js';
+import {MUSIC_STYLES} from '../audio/music.js';
 
 const LEVEL_TEXT = {
     simple: `The user may be a young student (age 8+). Before building, if the request is vague or
@@ -11,6 +13,9 @@ explain step by step what each script does, in short sentences a child understan
     advanced: `The user is comfortable with programming. Only ask a question when the request is
 truly impossible to interpret. Keep "explanation" concise: a short summary of the scripts.`
 };
+
+const SFX_PRESET_NAMES = Object.keys(SFX_PRESETS).join(', ');
+const MUSIC_STYLE_NAMES = Object.keys(MUSIC_STYLES).join(', ');
 
 const SELF_TEST_TEXT = `# Self-test
 In a "program", also add "test": a quick automatic check of the main behaviour you built. The program is run
@@ -72,7 +77,7 @@ the JSON.
     {
       "name": "Cat",                    // an existing sprite name adds to that sprite; a new name creates a sprite
       "costumes": [ <costume> ],        // costumes to ADD (new sprites should get at least one)
-      "sounds": [{"library": "Meow"}],  // sounds to ADD, from the sound library below
+      "sounds": [{"library": "Meow"}],  // sounds to ADD: library sounds, or generated ones (see below)
       "x": 0, "y": 0, "size": 100, "direction": 90, "visible": true,   // optional
       "variables": [...], "lists": [...],                             // "for this sprite only" data
       "scripts": [ <script>, ... ],
@@ -145,6 +150,12 @@ Write "explanation" and questions in ${language}. Names of sprites, variables an
 
 # Library sprites
 ${spriteLibrary.length ? spriteLibrary.join(', ') : '(not available: use svg costumes)'}
+
+# Generated sounds
+Besides library sounds, "sounds" may contain synthesized ones (free, no network):
+- {"sfx": "jump", "name": "jump"} a game effect; presets: ${SFX_PRESET_NAMES}
+- {"music": "happy", "name": "bgm"} a seamless background loop; styles: ${MUSIC_STYLE_NAMES}.
+  Loop it on the stage: "when green flag clicked" -> "forever" -> "play sound (bgm) until done".
 
 # Library sounds (add a sound to a sprite before a sound block uses it; menus take the sound name)
 ${soundLibrary.length ? soundLibrary.join(', ') : '(not available)'}

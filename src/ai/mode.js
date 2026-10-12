@@ -50,7 +50,7 @@ export const hashPin = async pin => {
  * @property {string} name class name
  * @property {boolean} exam exam mode: AI generation and image generation are disabled
  * @property {string} aiMode which AI help students get: 'both' | 'tutor' | 'generate'
- * @property {object} features {generate, image, selfCheck, missions}
+ * @property {object} features {generate, image, selfCheck, missions, audio}
  * @property {Array} missionPacks mission packs for self-study (missions/pack.js)
  * @property {?object} gateway class gateway {url, code}: students only enter their name or number
  * @property {string[]} providers allowed providers (empty = all)
@@ -71,7 +71,7 @@ export const defaultClassConfig = () => ({
     name: '',
     exam: false,
     aiMode: 'both',
-    features: {generate: true, image: true, selfCheck: true, missions: true},
+    features: {generate: true, image: true, selfCheck: true, missions: true, audio: true},
     providers: [],
     models: {},
     level: 'simple',
@@ -114,11 +114,11 @@ export const permissions = state => {
     const config = state.classConfig;
     const teacher = state.mode === 'teacher';
     if (teacher) {
-        const all = {generate: true, tutor: true, image: true, selfCheck: true, missions: true};
+        const all = {generate: true, tutor: true, image: true, selfCheck: true, missions: true, audio: true};
         return {teacher, ...all, batch: true, templates: true, exam: false};
     }
     if (!config) {
-        const all = {generate: true, tutor: true, image: true, selfCheck: true, missions: true};
+        const all = {generate: true, tutor: true, image: true, selfCheck: true, missions: true, audio: true};
         return {teacher, ...all, batch: false, templates: false, exam: false};
     }
     const aiMode = config.aiMode || 'both';
@@ -130,6 +130,7 @@ export const permissions = state => {
         image: !config.exam && config.features.image !== false,
         selfCheck: config.features.selfCheck !== false,
         missions: config.features.missions !== false,
+        audio: !config.exam && config.features.audio !== false,
         batch: false,
         templates: false
     };

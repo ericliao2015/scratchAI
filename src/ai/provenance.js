@@ -183,6 +183,8 @@ export const recordUsage = (vm, entry, before = null, {markScripts = true} = {})
  * @param {object} model project model
  * @returns {object} {share, aiBlocks, totalBlocks, generations, tutorCount, lastUsed, entries}
  */
+const TUTOR_MODES = ['ask', 'hint1', 'hint2', 'hint3', 'explain', 'debug'];
+
 export const aiUsageSummary = model => {
     let total = 0;
     let ai = 0;
@@ -202,7 +204,7 @@ export const aiUsageSummary = model => {
         aiBlocks: ai,
         totalBlocks: total,
         generations: entries.filter(e => e.mode === 'generate').length,
-        tutorCount: entries.filter(e => e.mode !== 'generate' && !String(e.mode).startsWith('mission')).length,
+        tutorCount: entries.filter(e => TUTOR_MODES.includes(e.mode)).length,
         lastUsed: entries.length ? entries[entries.length - 1].t : null,
         entries
     };

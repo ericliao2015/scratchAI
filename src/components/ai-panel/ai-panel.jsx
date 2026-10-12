@@ -11,6 +11,7 @@ import SettingsTab from './settings-tab.jsx';
 import TutorTab from './tutor-tab.jsx';
 import MissionsTab from './missions-tab.jsx';
 import ClassroomTab from './classroom-tab.jsx';
+import AudioTab from './audio-tab.jsx';
 import {t} from './i18n.js';
 
 const TABS = [
@@ -18,6 +19,7 @@ const TABS = [
     {id: 'tutor', label: 'AI 家教', component: TutorTab, visible: p => p.tutor},
     {id: 'missions', label: '任務', component: MissionsTab, visible: p => p.missions},
     {id: 'image', label: 'AI 生圖', component: ImageTab, visible: () => true},
+    {id: 'audio', label: 'AI 音樂', component: AudioTab, visible: p => p.audio || p.teacher},
     {id: 'grade', label: p => (p.teacher ? t('批改') : t('自我檢查')), component: GradeTab, visible: () => true},
     {id: 'batch', label: '批次', component: BatchTab, visible: p => p.batch},
     {id: 'templates', label: '範本', component: TemplatesTab, visible: p => p.templates},
