@@ -106,6 +106,7 @@ const GradeTab = ({services}) => {
     const [busy, setBusy] = useState(false);
     const [error, setError] = useState('');
     const [result, setResult] = useState(null);
+    const [submitted, setSubmitted] = useState(null);
 
     if (!permissions.selfCheck && !teacher) {
         return (
@@ -136,6 +137,37 @@ const GradeTab = ({services}) => {
                 })
             });
             setResult(graded);
+        } catch (e) {
+            setError(describeError(e));
+        } finally {
+            setBusy(false);
+        }
+    };
+
+    // Hand in the project (and the check report, if there is one) through the backend.
+    const submit = async () => {
+        setBusy(true);
+        setError('');
+        setSubmitted(null);
+        try {
+            const backend = services.backend;
+            const title = services.getProjectTitle() || t('專案');
+            const fileName = `${title}.sb3`;
+            const data = await services.vm.saveProjectSb3('arraybuffer');
+            const done = await backend.submit({
+                data,
+                fileName,
+                assignment: template ? template.title : title,
+                report: result ? toMarkdown({fileName, result}) : '',
+                summary: result ? {
+                    total: result.total,
+                    max: result.max,
+                    passedCount: result.passedCount,
+                    itemCount: result.itemCount,
+                    overallPass: result.overallPass
+                } : null
+            });
+            setSubmitted({...done, kind: backend.kind});
         } catch (e) {
             setError(describeError(e));
         } finally {
@@ -201,6 +233,22 @@ const GradeTab = ({services}) => {
                     services={services}
                     teacher={teacher}
                 />
+            )}
+            {!teacher && (
+                <div className={styles.section}>
+                    <button
+                        className={classNames(styles.button, styles.buttonSecondary)}
+                        disabled={busy}
+                        onClick={submit}
+                    >{services.backend.kind === 'gateway' ? t('📤 繳交給老師') : t('📦 下載繳交檔（專案＋檢查報告）')}</button>
+                    {submitted && (
+                        <div className={styles.pass}>
+                            {submitted.kind === 'gateway' ?
+                                t('已繳交（{0}）', [new Date(submitted.createdAt).toLocaleString()]) :
+                                t('已下載，請把 zip 檔交給老師。')}
+                        </div>
+                    )}
+                </div>
             )}
         </div>
     );

@@ -9,6 +9,8 @@ import {
 } from '../lib/libraries/tw-async-libraries';
 import {buildCatalogFromEditor} from '../ai/catalog/catalog.js';
 import {createAIClient} from '../ai/providers/runner.js';
+import {gatewayToken} from '../ai/providers/gateway.js';
+import {backendFor} from '../ai/backend/index.js';
 import {buildChain} from '../ai/providers/tiers.js';
 import {fetchJson} from '../ai/providers/http.js';
 import {loadSettings, saveSettings} from '../ai/settings.js';
@@ -68,6 +70,7 @@ class AIPanelHost extends React.Component {
         this.contextMenuTimer = setInterval(this.installContextMenu, 1000);
         // Handy for debugging and automated tests.
         window.scratchAI = {vm, host: this, getCatalog: () => this.getCatalog()};
+        this.applyClassGateway(this.state.modeState.classConfig);
         loadClassConfigFromUrl()
             .then(classConfig => {
                 if (!classConfig) return;
@@ -174,6 +177,32 @@ class AIPanelHost extends React.Component {
     setModeState (modeState) {
         saveModeState(modeState);
         this.setState({modeState});
+        this.applyClassGateway(modeState.classConfig);
+    }
+
+    // A class config may name the class gateway; students then only type their name or number.
+    applyClassGateway (classConfig) {
+        const gateway = classConfig && classConfig.gateway;
+        if (!gateway || !gateway.url) return;
+        const settings = this.state.settings;
+        const current = settings.providers.gateway;
+        const same = current.baseUrl === gateway.url && current.classCode === gateway.code;
+        if (same && settings.active === 'gateway') return;
+        this.updateSettings({
+            ...settings,
+            active: 'gateway',
+            providers: {
+                ...settings.providers,
+                gateway: {
+                    ...current,
+                    baseUrl: gateway.url,
+                    classCode: gateway.code || current.classCode,
+                    apiKey: gatewayToken(gateway.code || current.classCode, current.student),
+                    model: current.model || gateway.model || 'default',
+                    models: current.models || []
+                }
+            }
+        });
     }
 
     setTemplates (templates) {
@@ -257,7 +286,7 @@ class AIPanelHost extends React.Component {
             setTemplates: list => host.setTemplates(list),
             getCatalog: () => host.getCatalog(),
             getLibraries: () => host.getLibraries(),
-            hasTextModel: () => buildChain(host.state.settings).length > 0,
+            hasTextModel: purpose => buildChain(host.state.settings, {purpose}).length > 0,
             canGenerateImages: () => perms.image && !!settings.image.apiKey,
             generateImage: makeIRImageGenerator(settings, this.client),
             addCostumes: (costumes, options) => host.addCostumes(costumes, options),
@@ -268,7 +297,19 @@ class AIPanelHost extends React.Component {
             notice: this.state.notice,
             tutorRequest: this.state.tutorRequest,
             clearTutorRequest: () => host.setState({tutorRequest: null}),
-            openTutor: (task, blockId) => host.openTutor(task, blockId)
+            openTutor: (task, blockId) => host.openTutor(task, blockId),
+            openTab: tab => host.setState({tab, open: true}),
+            // Projects handed from the classroom tab to batch grading.
+            sendToBatch: projects => {
+                host.batchInbox = projects;
+                host.setState({tab: 'batch', open: true});
+            },
+            takeBatchInbox: () => {
+                const projects = host.batchInbox || null;
+                host.batchInbox = null;
+                return projects;
+            },
+            backend: backendFor(settings)
         };
     }
 

@@ -22,7 +22,7 @@ Progress.propTypes = {done: PropTypes.number, total: PropTypes.number};
 const BatchTab = ({services}) => {
     const {templates, settings} = services;
     const [task, setTask] = useState('grade');
-    const [projects, setProjects] = useState([]);
+    const [projects, setProjects] = useState(() => services.takeBatchInbox() || []);
     const [templateId, setTemplateId] = useState(templates.length ? templates[0].id : '');
     const [pauseOnFallback, setPauseOnFallback] = useState(settings.pauseBatchOnFallback !== false);
     const [entries, setEntries] = useState([]);

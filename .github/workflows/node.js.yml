@@ -23,4 +23,4 @@ jobs:
     - run: npm run build
     - run: npm run test:unit
     - name: Lint AI code
-      run: npx eslint src/ai src/components/ai-panel src/containers/ai-panel-host.jsx
+      run: npx eslint src/ai src/components/ai-panel src/containers/ai-panel-host.jsx server

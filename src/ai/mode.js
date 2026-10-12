@@ -52,6 +52,7 @@ export const hashPin = async pin => {
  * @property {string} aiMode which AI help students get: 'both' | 'tutor' | 'generate'
  * @property {object} features {generate, image, selfCheck, missions}
  * @property {Array} missionPacks mission packs for self-study (missions/pack.js)
+ * @property {?object} gateway class gateway {url, code}: students only enter their name or number
  * @property {string[]} providers allowed providers (empty = all)
  * @property {object} models allowed models per provider (empty = all)
  * @property {string} level default level 'simple' | 'advanced'
@@ -98,6 +99,8 @@ export const normalizeClassConfig = json => {
     if (!Array.isArray(config.templates)) config.templates = [];
     if (!Array.isArray(config.providers)) config.providers = [];
     if (!Array.isArray(config.missionPacks)) config.missionPacks = [];
+    config.gateway = config.gateway && typeof config.gateway === 'object' && config.gateway.url ?
+        {url: String(config.gateway.url), code: String(config.gateway.code || '').toUpperCase()} : null;
     if (!AI_MODES[config.aiMode]) config.aiMode = 'both';
     return config;
 };

@@ -12,12 +12,23 @@ M0～M10 已全部完成，程式位置見 README 的「程式架構」。與原
 | 項目 | 實作方式 |
 |---|---|
 | 產品名稱 | 介面顯示 **BlockAI**（`src/lib/brand.js` 可修改），避免使用 Scratch 商標 |
-| 介面語言 | AI 面板目前只有正體中文；AI 的說明與問題會依編輯器語言回覆 |
+| 介面語言 | AI 面板支援正體中文與英文（依編輯器語言）；AI 的說明與問題也依編輯器語言回覆 |
 | JSON 輸出 | 不使用各家的嚴格 JSON Schema（IR 是遞迴結構，各家支援度不一），改為提示詞規範＋本地驗證＋自動修正（最多 2 次） |
-| 代理伺服器 | 以範本形式提供（`proxy/`），非必要；預設每人自備 KEY |
+| 代理伺服器 | 以範本形式提供（`proxy/`），非必要；預設每人自備 KEY。P5 起另有完整的班級閘道（`server/`） |
 | 圖片編輯（動畫造型） | 先呼叫 `/images/edits`，失敗時改用文字描述重畫 |
 | 離線 | 建置時產生 `precache-manifest.json`，service worker 快取全部檔案（約 23 MB） |
 | 測試 | 單元測試 `test/unit/ai`（無頭 scratch-vm）、瀏覽器測試 `test/e2e-ai` |
+
+### 第二階段優化（P1～P6）
+
+| 階段 | 內容 | 主要程式 |
+|---|---|---|
+| P1 | 積木預覽圖、音效庫、提示詞快取、Ctrl+Z 復原、面板縮放／收合、英文介面 | `preview.js`、`apply/workspace.js`、`ai-panel/i18n.js` |
+| P2 | 家教模式（可與代寫切換，班級可限制）、右鍵「解釋／為什麼不會動」、三層提示、AI 使用紀錄與積木標記（學生看得到）、批改顯示 AI 比例 | `tutor.js`、`provenance.js` |
+| P3 | 背景執行引擎（虛擬時鐘、模擬按鍵／點擊／廣播）、產生後自動測試與修正、批改「執行測試」項目、除錯時附執行報告 | `run/engine.js`、`run/expect.js`、`run/verify.js` |
+| P4 | 任務包（自己完成／積木排序／找錯誤）、進度、提示、AI 出題、班級設定可附任務包 | `missions/`、`missions-tab.jsx` |
+| P5 | 班級閘道 v2（班級代碼、每日額度、模型備援、用量統計）、本機模型 WebLLM（只用於家教，依請求用途分流） | `server/`、`providers/gateway.js`、`providers/webllm.js` |
+| P6 | 後端介面（身分、繳交、雲端專案）：本機與閘道兩種實作；老師「班級」分頁收作業並送批次批改 | `backend/index.js`、`classroom-tab.jsx` |
 
 ## 1. 需求決策紀錄
 

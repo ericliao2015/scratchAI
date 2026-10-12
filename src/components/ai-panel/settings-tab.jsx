@@ -1,12 +1,15 @@
 import PropTypes from 'prop-types';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import classNames from 'classnames';
 import styles from './ai-panel.css';
 import {PROVIDERS, PROVIDER_ORDER} from '../../ai/providers/index.js';
-import {TIER_LABELS, defaultModel, groupModels} from '../../ai/providers/tiers.js';
+import {gatewayToken} from '../../ai/providers/gateway.js';
+import {WEBLLM_MODELS, onWebLLMProgress, webgpuAvailable} from '../../ai/providers/webllm.js';
+import {TIER_LABELS, defaultModel, groupModels, isConfigured} from '../../ai/providers/tiers.js';
 import {STRATEGIES, forgetKeys} from '../../ai/settings.js';
 import {hashPin, normalizeClassConfig} from '../../ai/mode.js';
 import {describeError} from './errors.js';
+import CloudProjects from './cloud-projects.jsx';
 import {t} from './i18n.js';
 
 const ModelPicker = ({providerId, config, onChange}) => {
@@ -24,7 +27,10 @@ const ModelPicker = ({providerId, config, onChange}) => {
                         key={group.tier || 'unranked'}
                         label={group.tier ? t(TIER_LABELS[group.tier]) : t('未分級')}
                     >
-                        {group.models.map(model => <option key={model} value={model}>{model}</option>)}
+                        {group.models.map(model => (<option
+                            key={model}
+                            value={model}
+                        >{model}</option>))}
                     </optgroup>
                 ))}
                 <option value="__custom__">{t('其他（自行輸入）')}</option>
@@ -58,6 +64,8 @@ const SettingsTab = ({services}) => {
     const [busy, setBusy] = useState('');
     const [notice, setNotice] = useState(null);
     const [pin, setPin] = useState('');
+    const [localProgress, setLocalProgress] = useState(null);
+    useEffect(() => onWebLLMProgress(setLocalProgress), []);
 
     const setConfig = patch => updateSettings({
         ...settings,
@@ -114,10 +122,7 @@ const SettingsTab = ({services}) => {
         }
     };
 
-    const configured = PROVIDER_ORDER.filter(id => {
-        const c = settings.providers[id];
-        return c.model && (id === 'compatible' ? c.baseUrl : c.apiKey);
-    });
+    const configured = PROVIDER_ORDER.filter(id => isConfigured(id, settings.providers[id]));
 
     const enterTeacher = async () => {
         if (!pin) return;
@@ -143,10 +148,88 @@ const SettingsTab = ({services}) => {
                     value={providerId}
                     onChange={e => updateSettings({...settings, active: e.target.value})}
                 >
-                    {allowedProviders.map(id => <option key={id} value={id}>{PROVIDERS[id].label}</option>)}
+                    {allowedProviders.map(id => (<option
+                        key={id}
+                        value={id}
+                    >{t(PROVIDERS[id].label)}</option>))}
                 </select>
 
-                {provider.needsBaseUrl && (
+                {provider.gateway && (
+                    <React.Fragment>
+                        <label className={styles.label}>{t('閘道網址（老師提供）')}</label>
+                        <input
+                            className={styles.input}
+                            value={config.baseUrl || ''}
+                            placeholder="https://blockai-gateway.example.workers.dev"
+                            onChange={e => setConfig({baseUrl: e.target.value.trim()})}
+                        />
+                        <div className={styles.row}>
+                            <div className={styles.grow}>
+                                <label className={styles.label}>{t('班級代碼')}</label>
+                                <input
+                                    className={styles.input}
+                                    value={config.classCode || ''}
+                                    placeholder="ABC234"
+                                    onChange={e => setConfig({
+                                        classCode: e.target.value.trim().toUpperCase(),
+                                        apiKey: gatewayToken(e.target.value, config.student)
+                                    })}
+                                />
+                            </div>
+                            <div className={styles.grow}>
+                                <label className={styles.label}>{t('姓名或座號')}</label>
+                                <input
+                                    className={styles.input}
+                                    value={config.student || ''}
+                                    placeholder={t('例如：05')}
+                                    onChange={e => setConfig({
+                                        student: e.target.value,
+                                        apiKey: gatewayToken(config.classCode, e.target.value)
+                                    })}
+                                    onBlur={() => config.classCode && config.student && config.baseUrl &&
+                                        !config.models.length && loadModels()}
+                                />
+                            </div>
+                        </div>
+                        <p className={styles.hint}>{t('使用老師的班級閘道時不需要自己的 KEY，用量由老師管理。')}</p>
+                    </React.Fragment>
+                )}
+                {provider.local && (
+                    <React.Fragment>
+                        <p className={styles.hint}>
+                            {t('模型會下載到這台電腦（約 1～3 GB，只需下載一次），之後不需網路也能用。需要支援 WebGPU 的瀏覽器（新版 Chrome、Edge）。小模型只用來解釋程式和給提示；寫程式與批改仍使用雲端模型。')}
+                        </p>
+                        {!webgpuAvailable() && (
+                            <div className={classNames(styles.message, styles.messageWarning)}>
+                                {t('這個瀏覽器不支援 WebGPU，無法使用本機模型。')}
+                            </div>
+                        )}
+                        <label className={styles.checkbox}>
+                            <input
+                                type="checkbox"
+                                checked={!!config.enabled}
+                                onChange={e => setConfig({
+                                    enabled: e.target.checked,
+                                    model: config.model || WEBLLM_MODELS[0].id,
+                                    models: config.models.length ? config.models : WEBLLM_MODELS.map(m => m.id)
+                                })}
+                            />
+                            {t('啟用本機模型（AI 家教、解釋、提示可以離線使用）')}
+                        </label>
+                        {localProgress && (
+                            <div>
+                                <div className={styles.meter}>
+                                    <div
+                                        className={styles.meterFill}
+                                        style={{width: `${Math.round(localProgress.progress * 100)}%`}}
+                                    />
+                                </div>
+                                <div className={styles.meta}>{localProgress.text}</div>
+                            </div>
+                        )}
+                    </React.Fragment>
+                )}
+                {provider.needsBaseUrl && !provider.gateway && (
                     <React.Fragment>
                         <label className={styles.label}>{t('伺服器網址')}</label>
                         <input
@@ -160,31 +243,37 @@ const SettingsTab = ({services}) => {
                     </React.Fragment>
                 )}
 
-                <label className={styles.label}>{`2. API KEY${provider.requiresKey ? '' : t('（選填）')}`}</label>
-                <div className={styles.row}>
-                    <input
-                        className={classNames(styles.input, styles.grow)}
-                        type={showKey ? 'text' : 'password'}
-                        autoComplete="off"
-                        value={config.apiKey}
-                        placeholder={t('貼上你的 KEY')}
-                        onChange={e => setConfig({
-                            apiKey: e.target.value.trim(),
-                            // Start with the provider's best known model; the list can be loaded later.
-                            model: config.model || defaultModel(providerId, config.models)
-                        })}
-                    />
-                    <button
-                        className={classNames(styles.button, styles.buttonSecondary, styles.buttonSmall)}
-                        onClick={() => setShowKey(!showKey)}
-                    >{showKey ? t('隱藏') : t('顯示')}</button>
-                </div>
-                {provider.keyUrl && (
-                    <p className={styles.hint}>
-                        {t('取得 KEY：')}
-                        <a href={provider.keyUrl} target="_blank" rel="noopener noreferrer">{provider.keyUrl}</a>
-                    </p>
-                )}
+                {!provider.gateway && !provider.local && (<React.Fragment>
+                    <label className={styles.label}>{`2. API KEY${provider.requiresKey ? '' : t('（選填）')}`}</label>
+                    <div className={styles.row}>
+                        <input
+                            className={classNames(styles.input, styles.grow)}
+                            type={showKey ? 'text' : 'password'}
+                            autoComplete="off"
+                            value={config.apiKey}
+                            placeholder={t('貼上你的 KEY')}
+                            onChange={e => setConfig({
+                                apiKey: e.target.value.trim(),
+                                // Start with the provider's best known model; the list can be loaded later.
+                                model: config.model || defaultModel(providerId, config.models)
+                            })}
+                        />
+                        <button
+                            className={classNames(styles.button, styles.buttonSecondary, styles.buttonSmall)}
+                            onClick={() => setShowKey(!showKey)}
+                        >{showKey ? t('隱藏') : t('顯示')}</button>
+                    </div>
+                    {provider.keyUrl && (
+                        <p className={styles.hint}>
+                            {t('取得 KEY：')}
+                            <a
+                                href={provider.keyUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >{provider.keyUrl}</a>
+                        </p>
+                    )}
+                </React.Fragment>)}
 
                 <label className={styles.label}>{t('3. 模型')}</label>
                 <div className={styles.row}>
@@ -201,7 +290,10 @@ const SettingsTab = ({services}) => {
                         onClick={loadModels}
                     >{busy === 'models' ? t('載入中…') : t('載入清單')}</button>
                 </div>
-                <div className={styles.row} style={{marginTop: '0.5rem'}}>
+                <div
+                    className={styles.row}
+                    style={{marginTop: '0.5rem'}}
+                >
                     <button
                         className={styles.button}
                         disabled={!!busy || (provider.requiresKey && !config.apiKey)}
@@ -222,7 +314,10 @@ const SettingsTab = ({services}) => {
             <div className={styles.section}>
                 <h3 className={styles.sectionTitle}>{t('額度用完時')}</h3>
                 {Object.entries(STRATEGIES).map(([id, label]) => (
-                    <label key={id} className={styles.checkbox}>
+                    <label
+                        key={id}
+                        className={styles.checkbox}
+                    >
                         <input
                             type="radio"
                             name="strategy"
@@ -241,6 +336,8 @@ const SettingsTab = ({services}) => {
                     {t('所有模型都不能用時，改用其他已設定的平台')}
                 </label>
             </div>
+
+            {services.backend.capabilities.cloudProjects && <CloudProjects services={services} />}
 
             <div className={styles.section}>
                 <h3 className={styles.sectionTitle}>{t('說明方式')}</h3>

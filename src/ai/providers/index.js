@@ -1,6 +1,8 @@
 import anthropic from './anthropic.js';
 import gemini from './gemini.js';
 import {createOpenAIAdapter} from './openai.js';
+import gateway from './gateway.js';
+import webllm from './webllm.js';
 
 const openai = createOpenAIAdapter({
     id: 'openai',
@@ -18,9 +20,9 @@ const compatible = createOpenAIAdapter({
     requiresKey: false
 });
 
-export const PROVIDERS = {anthropic, openai, gemini, compatible};
+export const PROVIDERS = {anthropic, openai, gemini, compatible, gateway, webllm};
 
-export const PROVIDER_ORDER = ['anthropic', 'openai', 'gemini', 'compatible'];
+export const PROVIDER_ORDER = ['gateway', 'anthropic', 'openai', 'gemini', 'compatible', 'webllm'];
 
 export const getProvider = id => {
     const provider = PROVIDERS[id];

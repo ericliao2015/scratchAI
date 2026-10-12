@@ -1,5 +1,5 @@
 import TIERS from './model-tiers.json';
-import {PROVIDER_ORDER} from './index.js';
+import {PROVIDERS, PROVIDER_ORDER} from './index.js';
 
 export const TIER_ORDER = ['high', 'mid', 'low'];
 
@@ -65,10 +65,13 @@ export const defaultModel = (providerId, available) => {
     return available && available.length ? available[0] : '';
 };
 
-const isConfigured = (providerId, config) => {
-    if (!config || !config.model) return false;
-    if (providerId === 'compatible') return !!config.baseUrl;
-    return !!config.apiKey;
+export const isConfigured = (providerId, config) => {
+    const provider = PROVIDERS[providerId];
+    if (!provider || !config || !config.model) return false;
+    if (provider.needsBaseUrl && !config.baseUrl) return false;
+    // Local models download a lot of data, so they are only used after the user turns them on.
+    if (provider.local && !config.enabled) return false;
+    return !provider.requiresKey || !!config.apiKey;
 };
 
 const chainForProvider = (providerId, config, {strategy}) => {
@@ -102,15 +105,18 @@ const chainForProvider = (providerId, config, {strategy}) => {
 /**
  * Build the ordered list of {provider, model} pairs to try.
  * @param {object} settings AI settings (see settings.js)
+ * @param {object} [options] {purpose: e.g. 'tutor'; providers limited to other purposes are skipped}
  * @returns {Array<{provider: string, model: string}>} chain, primary model first
  */
-export const buildChain = settings => {
+export const buildChain = (settings, {purpose = ''} = {}) => {
     const strategy = settings.strategy || 'high-first';
     const order = [settings.active, ...PROVIDER_ORDER.filter(id => id !== settings.active)];
     const chain = [];
     for (const providerId of order) {
         const config = settings.providers && settings.providers[providerId];
         if (!isConfigured(providerId, config)) continue;
+        const purposes = PROVIDERS[providerId].purposes;
+        if (purposes && !purposes.includes(purpose)) continue;
         if (providerId !== settings.active && (strategy === 'fixed' || settings.crossProvider === false)) continue;
         for (const model of chainForProvider(providerId, config, {strategy})) {
             chain.push({provider: providerId, model});

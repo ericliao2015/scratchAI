@@ -26,31 +26,32 @@ export const createAIClient = ({
     fetchImpl,
     maxRetries = 2
 }) => {
-    const state = {position: 0, day: today(), chainKey: ''};
+    // One position per chain (requests for different purposes can use different chains).
+    const state = {day: today(), positions: {}};
 
-    const currentChain = () => {
-        const chain = buildChain(getSettings());
+    const currentChain = (purpose = '') => {
+        const chain = buildChain(getSettings(), {purpose});
         const key = chain.map(e => `${e.provider}:${e.model}`).join('|');
-        if (key !== state.chainKey || state.day !== today()) {
-            state.chainKey = key;
+        if (state.day !== today()) {
             state.day = today();
-            state.position = 0;
+            state.positions = {};
         }
-        return chain;
+        if (!(key in state.positions)) state.positions[key] = 0;
+        return {chain, key};
     };
 
     const client = {
         get chain () {
-            return currentChain();
+            return currentChain().chain;
         },
 
         get current () {
-            const chain = currentChain();
-            return chain[Math.min(state.position, chain.length - 1)] || null;
+            const {chain, key} = currentChain();
+            return chain[Math.min(state.positions[key], chain.length - 1)] || null;
         },
 
         reset () {
-            state.position = 0;
+            state.positions = {};
         },
 
         /**
@@ -59,34 +60,38 @@ export const createAIClient = ({
          * @returns {boolean} true if there was a next model
          */
         escalate () {
-            const chain = currentChain();
-            if (state.position + 1 >= chain.length) return false;
-            const from = chain[state.position];
-            state.position += 1;
-            onEvent({type: 'fallback', from, to: chain[state.position], reason: 'escalate'});
+            const {chain, key} = currentChain();
+            const position = state.positions[key];
+            if (position + 1 >= chain.length) return false;
+            state.positions[key] = position + 1;
+            onEvent({type: 'fallback', from: chain[position], to: chain[position + 1], reason: 'escalate'});
             return true;
         },
 
         /**
-         * @param {object} request {system, messages, json, maxTokens}
+         * @param {object} request {system, messages, json, maxTokens, purpose}
          * @param {object} [options] {signal, onBeforeFallback}
          * @returns {Promise<object>} {text, usage, provider, model, downgraded}
          */
         async complete (request, {signal, onBeforeFallback} = {}) {
-            const chain = currentChain();
+            const {purpose, ...payload} = request;
+            const {chain, key} = currentChain(purpose);
             if (chain.length === 0) {
+                if (purpose !== 'tutor' && buildChain(getSettings(), {purpose: 'tutor'}).length) {
+                    throw new AIError(ErrorKind.AUTH, '本機模型只能用來解釋與提示；寫程式和批改需要設定雲端 AI 模型。');
+                }
                 throw new AIError(ErrorKind.AUTH, '尚未設定 AI 模型與 KEY，請先到「設定」完成設定。');
             }
             const settings = getSettings();
             let lastError = null;
-            for (let i = Math.min(state.position, chain.length - 1); i < chain.length; i++) {
+            for (let i = Math.min(state.positions[key], chain.length - 1); i < chain.length; i++) {
                 const entry = chain[i];
                 const config = settings.providers[entry.provider];
                 const adapter = providers[entry.provider];
                 for (let attempt = 0; ; attempt++) {
                     try {
                         const result = await adapter.complete({
-                            ...request,
+                            ...payload,
                             apiKey: config.apiKey,
                             baseUrl: config.baseUrl,
                             model: entry.model,
@@ -134,7 +139,7 @@ export const createAIClient = ({
                 if (lastError.kind !== ErrorKind.RATE_LIMIT && lastError.kind !== ErrorKind.OVERLOADED) {
                     // Concurrent requests may both move the position; either value is a valid model.
                     // eslint-disable-next-line require-atomic-updates
-                    state.position = nextIndex;
+                    state.positions[key] = nextIndex;
                 }
                 onEvent({type: 'fallback', from: entry, to: next, reason: lastError.kind, error: lastError});
                 // eslint-disable-next-line require-atomic-updates

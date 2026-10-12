@@ -1,0 +1,11 @@
+name = "blockai-gateway"
+main = "worker.js"
+compatibility_date = "2026-09-01"
+
+# Create the namespace with: npx wrangler kv namespace create BLOCKAI
+[[kv_namespaces]]
+binding = "BLOCKAI"
+id = "REPLACE_WITH_YOUR_KV_ID"
+
+[vars]
+ALLOWED_ORIGINS = "https://ericliao2015.github.io"

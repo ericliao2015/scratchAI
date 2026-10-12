@@ -22,7 +22,9 @@ export const defaultSettings = () => ({
         anthropic: {apiKey: '', model: '', models: []},
         openai: {apiKey: '', model: '', models: []},
         gemini: {apiKey: '', model: '', models: []},
-        compatible: {apiKey: '', model: '', models: [], baseUrl: 'http://localhost:11434/v1'}
+        compatible: {apiKey: '', model: '', models: [], baseUrl: 'http://localhost:11434/v1'},
+        gateway: {apiKey: '', model: '', models: [], baseUrl: '', classCode: '', student: ''},
+        webllm: {apiKey: '', model: '', models: [], enabled: false}
     },
     image: {
         provider: 'agnes',

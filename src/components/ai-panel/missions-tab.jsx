@@ -179,7 +179,8 @@ const MissionsTab = ({services}) => {
         setMissionId(null);
     };
 
-    const canAskAI = permissions.tutor && services.hasTextModel();
+    const canHint = permissions.tutor && services.hasTextModel('tutor');
+    const canMake = (permissions.tutor || permissions.teacher) && services.hasTextModel();
     const isSaved = pack && savedPacks.some(p => p.id === pack.id);
 
     return (
@@ -210,9 +211,9 @@ const MissionsTab = ({services}) => {
                 <React.Fragment>
                     {pack.description && <p className={styles.meta}>{pack.description}</p>}
                     <div className={styles.meta}>{t('完成 {0}/{1}', [doneCount, pack.missions.length])}</div>
-                    <div className={styles.progressBar}>
+                    <div className={styles.meter}>
                         <div
-                            className={styles.progressFill}
+                            className={styles.meterFill}
                             style={{width: `${pack.missions.length ? (100 * doneCount / pack.missions.length) : 0}%`}}
                         />
                     </div>
@@ -303,7 +304,7 @@ const MissionsTab = ({services}) => {
                                 onClick={nextHint}
                             >{t('看提示（{0}/{1}）', [shownHints + 1, mission.hints.length])}</button>
                         )}
-                        {shownHints >= mission.hints.length && canAskAI && aiHints.length < 3 && (
+                        {shownHints >= mission.hints.length && canHint && aiHints.length < 3 && (
                             <button
                                 className={classNames(styles.button, styles.buttonSecondary, styles.buttonSmall)}
                                 disabled={!!busy}
@@ -350,7 +351,7 @@ const MissionsTab = ({services}) => {
             {busy && <div className={styles.status}><div className={styles.spinner} />{busy}</div>}
             {error && <div className={classNames(styles.message, styles.messageError)}>{error}</div>}
 
-            {(canAskAI || (permissions.teacher && services.hasTextModel())) && (
+            {canMake && (
                 <div className={styles.section}>
                     <label className={styles.label}>{t('🤖 AI 出題：想練習什麼？')}</label>
                     <div className={styles.row}>

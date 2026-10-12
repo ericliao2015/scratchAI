@@ -77,7 +77,9 @@ export const askTutor = async ({
             })
         }],
         json: true,
-        maxTokens: 6000
+        maxTokens: 6000,
+        // A skeleton needs the whole block catalog, which is too much for small local models.
+        purpose: task === 'hint3' ? 'tutor-skeleton' : 'tutor'
     }, {signal});
     let answer;
     try {

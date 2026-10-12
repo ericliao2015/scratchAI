@@ -160,6 +160,15 @@ const ClassConfigEditor = ({services}) => {
     }));
     const [selected, setSelected] = useState(() => templates.map(tpl => tpl.id));
     const [savedPacks] = useState(loadSavedPacks);
+    const [gateway, setGateway] = useState(() => {
+        if (modeState.classConfig && modeState.classConfig.gateway) return modeState.classConfig.gateway;
+        try {
+            const saved = JSON.parse(window.localStorage.getItem('scratchai:gateway-admin') || '{}');
+            return {url: saved.lastCode ? saved.url : '', code: saved.lastCode || ''};
+        } catch (e) {
+            return {url: '', code: ''};
+        }
+    });
     const [selectedPacks, setSelectedPacks] = useState(() => savedPacks.map(pack => pack.id));
     const missionPacks = () => savedPacks.filter(pack => selectedPacks.includes(pack.id));
 
@@ -168,7 +177,8 @@ const ClassConfigEditor = ({services}) => {
             ...config,
             teacherPinHash: modeState.pinHash || '',
             templates: templates.filter(tpl => selected.includes(tpl.id)),
-            missionPacks: missionPacks()
+            missionPacks: missionPacks(),
+            gateway: gateway.url ? gateway : null
         };
         downloadBlob(`class-${config.name || 'config'}.json`, new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'}));
     };
@@ -180,7 +190,8 @@ const ClassConfigEditor = ({services}) => {
                 ...config,
                 teacherPinHash: modeState.pinHash || '',
                 templates: templates.filter(tpl => selected.includes(tpl.id)),
-                missionPacks: missionPacks()
+                missionPacks: missionPacks(),
+                gateway: gateway.url ? gateway : null
             })
         });
     };
@@ -240,6 +251,23 @@ const ClassConfigEditor = ({services}) => {
                 />
                 <span className={styles.meta}>{t('0 = 不限')}</span>
             </div>
+            <label className={styles.label}>{t('班級閘道（選填，在「班級」分頁建立）')}</label>
+            <div className={styles.row}>
+                <input
+                    className={classNames(styles.input, styles.grow)}
+                    value={gateway.url}
+                    placeholder={t('閘道網址')}
+                    onChange={e => setGateway({...gateway, url: e.target.value.trim()})}
+                />
+                <input
+                    className={styles.input}
+                    style={{width: '6rem'}}
+                    value={gateway.code}
+                    placeholder={t('班級代碼')}
+                    onChange={e => setGateway({...gateway, code: e.target.value.trim().toUpperCase()})}
+                />
+            </div>
+            <p className={styles.meta}>{t('填了之後，學生套用班級設定就會自動使用閘道，只需輸入座號。')}</p>
             <label className={styles.label}>{t('允許的平台（都不勾 = 全部）')}</label>
             {PROVIDER_ORDER.map(id => (
                 <label key={id} className={styles.checkbox}>
