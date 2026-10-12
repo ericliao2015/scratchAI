@@ -29,6 +29,45 @@ const parseRuleValue = text => {
     }
 };
 
+const SAMPLE_TEST = {
+    duration: 3,
+    actions: [{at: 0, do: 'greenFlag'}, {at: 1, do: 'keyPress', key: 'right arrow'}],
+    expect: [{sprite: 'Cat', prop: 'x', op: 'increased'}]
+};
+
+const TestEditor = ({test, onChange}) => {
+    const [text, setText] = useState(() => JSON.stringify(test || SAMPLE_TEST, null, 1));
+    const [error, setError] = useState('');
+    return (
+        <React.Fragment>
+            <textarea
+                className={classNames(styles.textarea, styles.code)}
+                style={{marginTop: '0.25rem', minHeight: '7rem'}}
+                value={text}
+                spellCheck={false}
+                onChange={e => setText(e.target.value)}
+                onBlur={() => {
+                    try {
+                        onChange(JSON.parse(text));
+                        setError('');
+                    } catch (e) {
+                        setError(t('JSON 格式錯誤：{0}', [e.message]));
+                    }
+                }}
+            />
+            {error ? <div className={styles.fail}>{error}</div> : (
+                <div className={styles.hint}>
+                    {t('在背景用模擬操作執行專案再檢查結果。actions：greenFlag、keyPress（key）、click（sprite）、broadcast（message）、answer（text）；expect：sprite＋prop（x、y、size、costume…）、var、said，op：= > < changed increased…')}
+                </div>
+            )}
+        </React.Fragment>
+    );
+};
+TestEditor.propTypes = {
+    test: PropTypes.object,
+    onChange: PropTypes.func.isRequired
+};
+
 const ItemEditor = ({item, onChange, onRemove}) => (
     <div className={styles.card}>
         <div className={styles.row}>
@@ -36,9 +75,15 @@ const ItemEditor = ({item, onChange, onRemove}) => (
                 className={styles.select}
                 style={{width: 'auto'}}
                 value={item.type}
-                onChange={e => onChange({...item, type: e.target.value, check: e.target.value === 'rule' ? {usesOpcode: ''} : undefined})}
+                onChange={e => onChange({
+                    ...item,
+                    type: e.target.value,
+                    check: e.target.value === 'rule' ? {usesOpcode: ''} : undefined,
+                    test: e.target.value === 'test' ? (item.test || SAMPLE_TEST) : undefined
+                })}
             >
                 <option value="rule">{t('規則（程式判斷，免費）')}</option>
+                <option value="test">{t('執行測試（實際跑程式，免費）')}</option>
                 <option value="ai">{t('AI 判斷')}</option>
             </select>
             <input
@@ -90,6 +135,12 @@ const ItemEditor = ({item, onChange, onRemove}) => (
                     }}
                 />
             </div>
+        )}
+        {item.type === 'test' && (
+            <TestEditor
+                test={item.test}
+                onChange={test => onChange({...item, test})}
+            />
         )}
     </div>
 );
@@ -349,6 +400,13 @@ const TemplatesTab = ({services}) => {
                             items: [...editing.items, {id: `a${Date.now()}`, type: 'ai', desc: '', points: 10}]
                         })}
                     >{t('+ AI 項目')}</button>
+                    <button
+                        className={classNames(styles.button, styles.buttonSecondary, styles.buttonSmall)}
+                        onClick={() => setEditing({
+                            ...editing,
+                            items: [...editing.items, {id: `t${Date.now()}`, type: 'test', desc: '', points: 10, test: SAMPLE_TEST}]
+                        })}
+                    >{t('+ 測試項目')}</button>
                 </div>
                 <div className={styles.row} style={{marginTop: '0.75rem'}}>
                     <button

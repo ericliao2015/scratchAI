@@ -8,6 +8,7 @@ import {ProjectSerializer, projectToText} from './project/serialize.js';
 import {formatCatalog} from './catalog/format.js';
 import {buildTutorSystemPrompt, buildTutorUserMessage} from './prompts/tutor.js';
 import {recordUsage} from './provenance.js';
+import {describeRun} from './run/verify.js';
 
 /**
  * Text of the script that contains a block, for "explain this" and "why doesn't this work".
@@ -39,6 +40,8 @@ export const scriptTextForBlock = (vm, blockId, catalog = null) => {
  * @param {string} [options.question] the student's question
  * @param {?string} [options.blockId] block the student right-clicked
  * @param {string} [options.runReport] description of a test run (debug)
+ * @param {boolean} [options.autoRun] for "debug" without a report: run the project in the background first
+ * @param {boolean} [options.withRenderer] use a renderer for that run (browser)
  * @param {object} [options.promptOptions] {level, language}
  * @param {boolean} [options.record] write the interaction to the usage log
  * @param {AbortSignal} [options.signal] cancel
@@ -46,8 +49,17 @@ export const scriptTextForBlock = (vm, blockId, catalog = null) => {
  */
 export const askTutor = async ({
     client, vm, catalog, task, goal = '', question = '', blockId = null, runReport = '',
-    promptOptions = {}, record = true, signal
+    promptOptions = {}, record = true, signal, autoRun = true, withRenderer = true
 }) => {
+    let report = runReport;
+    if (task === 'debug' && !report && autoRun) {
+        try {
+            report = await describeRun({vm, withRenderer});
+        } catch (e) {
+            // The written explanation still helps without a run.
+            report = '';
+        }
+    }
     const model = modelFromVM(vm);
     const focus = blockId ? scriptTextForBlock(vm, blockId, catalog) : null;
     const {text: projectText} = projectToText(model, {catalog, human: true});
@@ -61,7 +73,7 @@ export const askTutor = async ({
                 question,
                 projectText,
                 focusText: focus ? `(${focus.targetName})\n${focus.text}` : '',
-                runReport
+                runReport: report
             })
         }],
         json: true,
@@ -93,6 +105,7 @@ export const askTutor = async ({
         missing: Array.isArray(answer.missing) ? answer.missing.map(String) : [],
         concepts: Array.isArray(answer.concepts) ? answer.concepts.map(String) : [],
         focus,
+        runReport: report,
         model: response.model,
         downgraded: response.downgraded
     };

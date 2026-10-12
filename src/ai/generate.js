@@ -10,7 +10,9 @@ import {blockIdSnapshot, recordUsage} from './provenance.js';
 import {modelFromVM} from './project/model.js';
 import {projectToText} from './project/serialize.js';
 import {formatCatalog} from './catalog/format.js';
-import {buildGenerateSystemPrompt, buildGenerateUserMessage, buildRepairMessage} from './prompts/generate.js';
+import {
+    buildGenerateSystemPrompt, buildGenerateUserMessage, buildRepairMessage, buildTestFailureMessage
+} from './prompts/generate.js';
 
 const MAX_REPAIRS = 2;
 
@@ -35,16 +37,22 @@ const validateOps = ops => {
  * @param {Array} [options.history] previous messages of this conversation
  * @param {object} [options.promptOptions] {spriteLibrary, backdropLibrary, imageGeneration, level, language}
  * @param {function(string): void} [options.onStatus] progress messages
+ * @param {function(object): Promise<?object>} [options.verify] test a compiled program (run/verify.js);
+ *     a failed test is sent back to the AI once
  * @param {AbortSignal} [options.signal] cancel
  * @returns {Promise<object>} {type: 'question'|'program', ...}
  */
 export const generate = async ({
     client, vm, catalog, request, history = [], promptOptions = {}, onStatus = () => {}, signal,
-    extraInstructions = '', onBeforeFallback
+    extraInstructions = '', onBeforeFallback, verify = null
 }) => {
     const model = modelFromVM(vm);
     const {text: projectText, ids} = projectToText(model, {catalog});
-    const system = buildGenerateSystemPrompt({catalogText: formatCatalog(catalog), ...promptOptions});
+    const system = buildGenerateSystemPrompt({
+        catalogText: formatCatalog(catalog),
+        selfTest: !!verify,
+        ...promptOptions
+    });
     const messages = [
         ...history,
         {
@@ -61,7 +69,9 @@ export const generate = async ({
     let lastErrors = [];
     const usage = {inputTokens: 0, outputTokens: 0, cachedTokens: 0};
     let response = null;
-    for (let attempt = 0; attempt <= MAX_REPAIRS; attempt++) {
+    let testRepairs = verify ? 1 : 0;
+    let failedTest = null;
+    for (let attempt = 0; attempt <= MAX_REPAIRS + (verify ? 1 : 0); attempt++) {
         if (attempt === 0) onStatus('AI 思考中…');
         else onStatus('修正中（第 {0} 次）…', [attempt]);
         response = await client.complete({system, messages, json: true, maxTokens: 16000}, {signal, onBeforeFallback});
@@ -97,7 +107,7 @@ export const generate = async ({
         const compiled = compileProgram(ir, {catalog, model});
         const errors = [...compiled.errors, ...validateOps(ir.ops)];
         if (errors.length === 0) {
-            return {
+            const program = {
                 type: 'program',
                 request,
                 ir,
@@ -110,8 +120,27 @@ export const generate = async ({
                 usage,
                 model: response.model,
                 provider: response.provider,
-                downgraded: response.downgraded
+                downgraded: response.downgraded,
+                verification: null
             };
+            if (verify) {
+                onStatus('自動測試中…');
+                try {
+                    program.verification = await verify(program);
+                } catch (e) {
+                    program.verification = {error: e.message};
+                }
+                const verification = program.verification;
+                if (verification && verification.pass === false && testRepairs > 0) {
+                    testRepairs--;
+                    failedTest = verification;
+                    messages.push({role: 'user', content: buildTestFailureMessage(verification)});
+                    onStatus('自動測試沒通過，AI 修正中…');
+                    continue;
+                }
+                if (failedTest && verification) verification.repaired = true;
+            }
+            return program;
         }
         lastErrors = errors;
         messages.push({role: 'user', content: buildRepairMessage(errors)});

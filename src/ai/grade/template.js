@@ -10,6 +10,12 @@ export const STUDENT_VIEWS = {
     hidden: '不開放學生自我檢查'
 };
 
+export const ITEM_TYPES = {
+    rule: '規則檢查',
+    ai: 'AI 判斷',
+    test: '執行測試'
+};
+
 export const SCORING = {
     points: '分數',
     passfail: '通過／不通過'
@@ -21,13 +27,18 @@ export const SCORING = {
  */
 export const normalizeTemplate = json => {
     if (!json || typeof json !== 'object') throw new Error('範本格式不正確');
-    const items = (Array.isArray(json.items) ? json.items : []).map((item, index) => ({
-        id: String(item.id || `item${index + 1}`),
-        type: item.type === 'rule' ? 'rule' : 'ai',
-        desc: String(item.desc || item.description || ''),
-        points: Number.isFinite(Number(item.points)) ? Number(item.points) : 10,
-        check: item.type === 'rule' ? (item.check || {}) : null
-    }));
+    const items = (Array.isArray(json.items) ? json.items : []).map((item, index) => {
+        const type = ITEM_TYPES[item.type] ? item.type : 'ai';
+        const normalized = {
+            id: String(item.id || `item${index + 1}`),
+            type,
+            desc: String(item.desc || item.description || ''),
+            points: Number.isFinite(Number(item.points)) ? Number(item.points) : 10,
+            check: type === 'rule' ? (item.check || {}) : null
+        };
+        if (type === 'test') normalized.test = item.test && typeof item.test === 'object' ? item.test : {expect: []};
+        return normalized;
+    });
     const ids = new Set();
     items.forEach((item, index) => {
         if (ids.has(item.id)) item.id = `${item.id}-${index + 1}`;

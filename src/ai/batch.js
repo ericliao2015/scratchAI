@@ -12,6 +12,7 @@ import {applyOps} from './apply/patch.js';
 import {applyPlan} from './apply/apply.js';
 import {BATCH_INSTRUCTIONS} from './prompts/generate.js';
 import {parseFileName} from './grade/report.js';
+import {runTest} from './run/verify.js';
 
 /**
  * Expand the user's selection: .sb3 files as they are, .zip files into the .sb3 files inside.
@@ -89,10 +90,12 @@ const runPool = async (items, concurrency, worker, signal) => {
  * @param {function(object): void} [options.onResult] called with each entry as soon as it is done
  * @param {function} [options.onBeforeFallback] return false to pause on model downgrade
  * @param {AbortSignal} [options.signal] cancel
+ * @param {object} [options.storage] storage for running "test" items
  * @returns {Promise<Array<{fileName, result, error}>>} entries in file order
  */
 export const batchGrade = async ({
-    projects, template, client, catalog, language, concurrency = 2, onResult = () => {}, onBeforeFallback, signal
+    projects, template, client, catalog, language, concurrency = 2, onResult = () => {}, onBeforeFallback, signal,
+    storage = null
 }) => {
     const entries = new Array(projects.length);
     let paused = false;
@@ -101,7 +104,16 @@ export const batchGrade = async ({
         let entry;
         try {
             const model = await modelFromSb3(project.data);
-            const result = await gradeProject({model, template, client, catalog, language, onBeforeFallback, signal});
+            const result = await gradeProject({
+                model,
+                template,
+                client,
+                catalog,
+                language,
+                onBeforeFallback,
+                signal,
+                runTest: storage ? test => runTest({data: project.data, storage, test}) : null
+            });
             entry = {fileName: project.fileName, result, error: null};
         } catch (e) {
             // Each file runs on its own; this flag only stops files that have not started yet.

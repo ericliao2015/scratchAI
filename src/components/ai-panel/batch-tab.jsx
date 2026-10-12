@@ -71,6 +71,7 @@ const BatchTab = ({services}) => {
                 client: services.hasTextModel() ? services.client : null,
                 catalog: services.getCatalog(),
                 language: services.language,
+                storage: services.vm.runtime.storage,
                 signal: controller.signal,
                 onBeforeFallback: pauseOnFallback && !continuing ? () => false : () => true,
                 onResult: entry => setEntries(current => [...current.filter(e => e.fileName !== entry.fileName), entry])

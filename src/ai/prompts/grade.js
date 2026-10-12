@@ -37,7 +37,8 @@ grading criteria for a Scratch 3 assignment into a grading template. Return ONE 
   "title": "short title",
   "items": [
     {"id": "r1", "type": "rule", "desc": "...", "points": 10, "check": {...}},
-    {"id": "a1", "type": "ai", "desc": "...", "points": 10}
+    {"id": "a1", "type": "ai", "desc": "...", "points": 10},
+    {"id": "t1", "type": "test", "desc": "...", "points": 10, "test": {...}}
   ],
   "scoring": "points" | "passfail"
 }
@@ -47,5 +48,14 @@ ${Object.entries(RULE_DESCRIPTIONS).map(([key, text]) => `- {"${key}": ...} ${te
         .join('\n')}
 Examples: {"usesOpcode": "event_whenflagclicked"}, {"usesOpcode": ["control_forever", "control_repeat"]},
 {"variableExists": "score"}, {"spriteCount": {"min": 2}}, {"broadcastUsed": true}, {"usesExtension": "pen"}.
-Use "ai" items for anything about behaviour or logic (e.g. "score increases when the cat touches the apple").
+Use "test" items for behaviour that can be checked by running the project in the background: the project
+is run with simulated input and the result is checked. Points are given in proportion to passed expectations.
+"test": {"duration": 3, "actions": [{"at": 0, "do": "greenFlag"}, {"at": 1, "do": "keyPress", "key": "right arrow"}],
+         "expect": [{"sprite": "Cat", "prop": "x", "op": "increased"}, {"var": "score", "op": ">=", "value": 1}]}
+actions: greenFlag, keyPress/keyDown/keyUp ("key"), click ("sprite"), clickStage, broadcast ("message"),
+answer ("text"), mouse ("x", "y", "down"). expect: {"sprite", "prop": x|y|direction|size|visible|costume|clones,
+"op", "value", "at": seconds or "end", "from"}, {"var": name, ...}, {"prop": "backdrop", ...}, {"said": text}.
+op: = != > >= < <= changed unchanged increased decreased contains. Only use names the teacher mentions, and
+only check what is certain (no random values).
+Use "ai" items for anything about behaviour or logic that a short run cannot show.
 Points should add up to 100 unless the teacher says otherwise. Write "desc" and "title" in ${language}.`;

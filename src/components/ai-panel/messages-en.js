@@ -343,5 +343,21 @@ export default {
     '只開放家教（AI 只解釋、提示，不寫程式）': 'Tutor only (the AI explains and hints, never writes code)',
     '只開放代寫': 'Build only',
     '🤖 AI 產生的積木：{0}%（{1}/{2}），AI 產生 {3} 次、家教 {4} 次': '🤖 AI-made blocks: {0}% ({1}/{2}); AI builds: {3}, tutor questions: {4}',
-    '提示已用完': 'No more hints'
+    '提示已用完': 'No more hints',
+    '無法自動測試：{0}': 'Could not run the automatic test: {0}',
+    '🧪 已自動測試：{0}/{1} 項通過': '🧪 Tested automatically: {0}/{1} checks passed',
+    '🧪 自動測試：{0}/{1} 項通過，請套用後自己試試看': '🧪 Automatic test: {0}/{1} checks passed — try it yourself after applying',
+    '（AI 已依測試結果修正過一次）': ' (the AI fixed it once after a failed test)',
+    '（實際：{0}）': ' (actual: {0})',
+    'AI 會在背景執行一次程式，檢查是否真的做到；沒做到會自動修正一次。': 'The AI runs the program once in the background to check that it works, and fixes it once if it does not.',
+    '自動測試': 'Self-test',
+    '執行紀錄': 'Run log',
+    'JSON 格式錯誤：{0}': 'Invalid JSON: {0}',
+    '在背景用模擬操作執行專案再檢查結果。actions：greenFlag、keyPress（key）、click（sprite）、broadcast（message）、answer（text）；expect：sprite＋prop（x、y、size、costume…）、var、said，op：= > < changed increased…': 'Runs the project in the background with simulated input, then checks the result. actions: greenFlag, keyPress (key), click (sprite), broadcast (message), answer (text); expect: sprite + prop (x, y, size, costume…), var, said; op: = > < changed increased…',
+    '執行測試（實際跑程式，免費）': 'Run test (runs the program, free)',
+    '+ 測試項目': '+ Test item',
+    '🧪 AI 在背景執行了你的程式 3 秒，看到的情況': '🧪 What the AI saw when it ran your program for 3 seconds',
+    '自動測試中…': 'Testing automatically…',
+    '自動測試沒通過，AI 修正中…': 'The automatic test failed; the AI is fixing it…',
+    '測試': 'Test'
 };

@@ -9,6 +9,7 @@ import {modelFromVM} from '../../ai/project/model.js';
 import {describeError} from './errors.js';
 import downloadBlob from '../../lib/download-blob.js';
 import {t} from './i18n.js';
+import {projectDataWithIds, runTest} from '../../ai/run/verify.js';
 
 const FREE_TEXT = '__free__';
 
@@ -50,6 +51,12 @@ export const ResultView = ({result, services, teacher}) => {
                                 <td>
                                     <div>{item.desc}</div>
                                     {item.reason && <div className={styles.meta}>{item.reason}</div>}
+                                    {item.run && (
+                                        <details className={styles.meta}>
+                                            <summary>{t('執行紀錄')}</summary>
+                                            <pre className={styles.code}>{item.run.report}</pre>
+                                        </details>
+                                    )}
                                     {item.evidence && item.evidence.length > 0 && (
                                         <div className={styles.chips}>
                                             {item.evidence.slice(0, 5).map((e, i) => (
@@ -121,7 +128,12 @@ const GradeTab = ({services}) => {
                 template,
                 client: services.hasTextModel() ? services.client : null,
                 catalog: services.getCatalog(),
-                language: services.language
+                language: services.language,
+                runTest: async test => runTest({
+                    data: await projectDataWithIds(services.vm),
+                    storage: services.vm.runtime.storage,
+                    test
+                })
             });
             setResult(graded);
         } catch (e) {
@@ -165,7 +177,7 @@ const GradeTab = ({services}) => {
             )}
             {template && choice !== FREE_TEXT && teacher && (
                 <ul className={styles.summary}>
-                    {template.items.map(item => <li key={item.id}>{t('{0}（{1}，{2} 分）', [item.desc, item.type === 'rule' ? t('規則') : 'AI', item.points])}</li>)}
+                    {template.items.map(item => <li key={item.id}>{t('{0}（{1}，{2} 分）', [item.desc, {rule: t('規則'), test: t('測試')}[item.type] || 'AI', item.points])}</li>)}
                 </ul>
             )}
             <div className={styles.row} style={{marginTop: '0.5rem'}}>

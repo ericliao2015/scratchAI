@@ -6,6 +6,39 @@ import {applyGenerated, generate, restoreSnapshot, summarizeProgram} from '../..
 import {describeError} from './errors.js';
 import {t} from './i18n.js';
 import BlocksPreview from './blocks-preview.jsx';
+import {verifyProgram} from '../../ai/run/verify.js';
+
+const SELF_TEST_KEY = 'scratchai:self-test';
+const loadSelfTest = () => {
+    try {
+        return window.localStorage.getItem(SELF_TEST_KEY) !== 'off';
+    } catch (e) {
+        return true;
+    }
+};
+
+const Verification = ({verification}) => {
+    if (!verification) return null;
+    if (verification.error) {
+        return <div className={styles.meta}>{t('無法自動測試：{0}', [verification.error])}</div>;
+    }
+    return (
+        <details className={verification.pass ? styles.pass : styles.fail}>
+            <summary>
+                {verification.pass ?
+                    t('🧪 已自動測試：{0}/{1} 項通過', [verification.passed, verification.total]) :
+                    t('🧪 自動測試：{0}/{1} 項通過，請套用後自己試試看', [verification.passed, verification.total])}
+                {verification.repaired ? t('（AI 已依測試結果修正過一次）') : ''}
+            </summary>
+            <ul className={styles.summary}>
+                {verification.results.map((r, i) => (
+                    <li key={i}>{`${r.pass ? '✓' : '✗'} ${r.label}${r.pass ? '' : t('（實際：{0}）', [r.actual])}`}</li>
+                ))}
+            </ul>
+        </details>
+    );
+};
+Verification.propTypes = {verification: PropTypes.object};
 
 const EXAMPLES = [
     '讓角色用方向鍵上下左右移動',
@@ -36,6 +69,7 @@ const GenerateTab = ({services}) => {
     const [busy, setBusy] = useState(false);
     const [status, setStatus] = useState('');
     const [autoClean, setAutoClean] = useState(true);
+    const [selfTest, setSelfTest] = useState(loadSelfTest);
     const abortRef = useRef(null);
 
     const add = message => setMessages(list => [...list, {id: `${Date.now()}-${Math.random()}`, ...message}]);
@@ -72,6 +106,7 @@ const GenerateTab = ({services}) => {
                     strategy: services.settings.strategy
                 },
                 onStatus: (key, args) => setStatus(t(key, args)),
+                verify: selfTest ? result => verifyProgram({vm: services.vm, catalog, result, libraries}) : null,
                 signal: controller.signal
             });
             setHistory(result.history);
@@ -201,6 +236,7 @@ const GenerateTab = ({services}) => {
                     <div key={message.id} className={classNames(styles.message, styles.messageAi)}>
                         {result.explanation && <div>{result.explanation}</div>}
                         <Summary summary={summary} />
+                        <Verification verification={result.verification} />
                         {message.state === 'pending' && (
                             <BlocksPreview
                                 vm={services.vm}
@@ -300,6 +336,24 @@ const GenerateTab = ({services}) => {
                             onChange={e => setAutoClean(e.target.checked)}
                         />
                         {t('套用後自動整理積木')}
+                    </label>
+                    <label
+                        className={styles.checkbox}
+                        title={t('AI 會在背景執行一次程式，檢查是否真的做到；沒做到會自動修正一次。')}
+                    >
+                        <input
+                            type="checkbox"
+                            checked={selfTest}
+                            onChange={e => {
+                                setSelfTest(e.target.checked);
+                                try {
+                                    window.localStorage.setItem(SELF_TEST_KEY, e.target.checked ? 'on' : 'off');
+                                } catch (err) {
+                                    // ignore
+                                }
+                            }}
+                        />
+                        {t('自動測試')}
                     </label>
                     {messages.length > 0 && (
                         <button

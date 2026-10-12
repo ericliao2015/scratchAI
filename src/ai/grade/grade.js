@@ -6,6 +6,7 @@ import {ProjectSerializer, projectToText, targetOfBlock} from '../project/serial
 import {runRule} from './rules.js';
 import {aiUsageSummary} from '../provenance.js';
 import {normalizeTemplate} from './template.js';
+import {normalizeTest} from '../run/verify.js';
 import {buildGradeSystemPrompt, buildGradeUserMessage, buildTemplateDraftPrompt} from '../prompts/grade.js';
 
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
@@ -20,6 +21,34 @@ const hashText = async text => {
 const cache = new Map();
 
 /**
+ * Run a "test" item: points in proportion to the expectations that hold.
+ * @param {object} item template item with .test
+ * @param {?function} runTest runner
+ * @returns {Promise<object>} {pass, score, reason, evidence, run}
+ */
+const gradeTestItem = async (item, runTest) => {
+    const test = normalizeTest(item.test);
+    if (!test) return {pass: false, score: 0, reason: '這個測試項目沒有設定檢查條件', evidence: []};
+    if (!runTest) return {pass: false, score: 0, reason: '無法在這裡執行測試', evidence: []};
+    try {
+        const run = await runTest(test);
+        const failed = run.results.filter(r => !r.pass);
+        const reason = failed.length ?
+            failed.map(r => `✗ ${r.label}（實際：${r.actual}）`).join('；') :
+            run.results.map(r => `✓ ${r.label}`).join('；');
+        return {
+            pass: run.pass,
+            score: Math.round(item.points * run.passed / Math.max(run.total, 1) * 10) / 10,
+            reason,
+            evidence: [],
+            run: {passed: run.passed, total: run.total, results: run.results, report: run.report}
+        };
+    } catch (e) {
+        return {pass: false, score: 0, reason: `執行測試失敗：${e.message}`, evidence: []};
+    }
+};
+
+/**
  * @param {object} options options
  * @param {object} options.model project model
  * @param {object} options.template grading template
@@ -27,11 +56,13 @@ const cache = new Map();
  * @param {?object} [options.catalog] block catalog (for readable evidence)
  * @param {string} [options.language] feedback language
  * @param {function} [options.onBeforeFallback] passed to the client (batch "pause on downgrade")
+ * @param {function(object): Promise<object>} [options.runTest] runs a "test" item (run/verify.js runTest)
  * @param {AbortSignal} [options.signal] cancel
  * @returns {Promise<object>} grading result
  */
 export const gradeProject = async ({
-    model, template: rawTemplate, client, catalog = null, language = '繁體中文', onBeforeFallback, signal
+    model, template: rawTemplate, client, catalog = null, language = '繁體中文', onBeforeFallback, signal,
+    runTest = null
 }) => {
     const template = normalizeTemplate(rawTemplate);
     const {text: projectText, ids, aliases} = projectToText(model, {catalog});
@@ -68,6 +99,11 @@ export const gradeProject = async ({
             reason: outcome.detail,
             evidence: outcome.evidence.map(e => evidenceOf(e.blockId, e.target))
         });
+    }
+
+    for (const item of template.items) {
+        if (item.type !== 'test') continue;
+        items.push({...item, ...await gradeTestItem(item, runTest)});
     }
 
     const aiItems = template.items.filter(item => item.type === 'ai');
@@ -150,7 +186,7 @@ export const studentViewOf = result => {
     return {
         ...result,
         summary: '',
-        items: result.items.map(item => ({...item, reason: '', evidence: []}))
+        items: result.items.map(item => ({...item, reason: '', evidence: [], run: null}))
     };
 };
 

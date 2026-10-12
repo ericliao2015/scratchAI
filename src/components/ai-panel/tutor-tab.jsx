@@ -122,6 +122,12 @@ const TutorTab = ({services}) => {
                                 <pre className={styles.code}>{answer.focus.text}</pre>
                             </details>
                         )}
+                        {answer.runReport && (
+                            <details>
+                                <summary>{t('🧪 AI 在背景執行了你的程式 3 秒，看到的情況')}</summary>
+                                <pre className={styles.code}>{answer.runReport}</pre>
+                            </details>
+                        )}
                         <div>{answer.message}</div>
                         {answer.question && <div className={styles.tutorQuestion}>{`💭 ${answer.question}`}</div>}
                         {answer.skeleton && (

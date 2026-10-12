@@ -12,6 +12,24 @@ explain step by step what each script does, in short sentences a child understan
 truly impossible to interpret. Keep "explanation" concise: a short summary of the scripts.`
 };
 
+const SELF_TEST_TEXT = `# Self-test
+In a "program", also add "test": a quick automatic check of the main behaviour you built. The program is run
+in the background on a copy of the project and the result is shown to the user.
+"test": {"duration": 3,
+  "actions": [{"at": 0, "do": "greenFlag"}, {"at": 1, "do": "keyPress", "key": "right arrow"}],
+  "expect": [{"sprite": "Cat", "prop": "x", "op": "increased"}, {"var": "score", "op": ">=", "value": 1},
+             {"said": "Hello", "sprite": "Cat"}]}
+- actions ("at" in seconds): greenFlag, keyPress / keyDown / keyUp ("key"), click ("sprite"), clickStage,
+  broadcast ("message"), answer ("text", answers "ask and wait"), mouse ("x", "y", "down").
+- expect: {"sprite", "prop": x|y|direction|size|visible|costume|clones, "op", "value", "at": seconds or "end",
+  "from": seconds (for changed/increased/...)}, {"var": name, ...}, {"prop": "backdrop", ...},
+  {"said": text, "sprite"} (some speech bubble contains the text).
+- op: = != > >= < <= changed unchanged increased decreased contains.
+- Check only what is certain: no random values, no "touching" results, no timing finer than 0.3 s.
+  Use 1 to 4 expectations. Leave "test" out when nothing can be checked (e.g. only costumes were added).
+
+`;
+
 /**
  * @param {object} options options
  * @param {string} options.catalogText formatted block catalog
@@ -29,7 +47,8 @@ export const buildGenerateSystemPrompt = ({
     soundLibrary = [],
     imageGeneration = false,
     level = 'simple',
-    language = '繁體中文'
+    language = '繁體中文',
+    selfTest = false
 }) => `You are the programming assistant inside a Scratch 3 block editor. You turn the user's
 request into Scratch blocks by returning ONE JSON object. Never return markdown or prose outside
 the JSON.
@@ -119,7 +138,7 @@ To add a new script to an existing sprite, put it in "sprites" with that sprite'
 - Do not duplicate scripts that already exist in the project.
 - Keep it as simple as the request allows.
 
-# User level
+${selfTest ? SELF_TEST_TEXT : ''}# User level
 ${LEVEL_TEXT[level] || LEVEL_TEXT.simple}
 
 Write "explanation" and questions in ${language}. Names of sprites, variables and messages may use ${language}.
@@ -159,6 +178,21 @@ export const BATCH_INSTRUCTIONS = `IMPORTANT: your answer will be applied to MAN
 are similar to the one shown. Block aliases (#12) differ between projects, so in ops use a matcher object instead
 of an alias: "block": {"opcode": "motion_movesteps", "fields": {...}, "inputs": {"STEPS": 10}, "index": 0}.
 Refer to sprites by name. Do not use "ask a question" responses.`;
+
+/**
+ * Feedback sent back to the model when the automatic test of its program failed.
+ * @param {object} verification run/verify.js result
+ * @returns {string} message
+ */
+export const buildTestFailureMessage = verification => `Your program compiled, but its automatic test failed.
+${verification.results.map(r => `- ${r.pass ? 'PASS' : 'FAIL'} ${r.label}: expected ${r.expected}, got ${r.actual}`)
+        .join('\n')}
+
+What happened when the program ran:
+${verification.report}
+
+If the program is wrong, fix it. If the program does what the user asked and the test was wrong, fix the
+test. Return the COMPLETE corrected JSON object.`;
 
 /**
  * Feedback sent back to the model when its JSON did not compile.
