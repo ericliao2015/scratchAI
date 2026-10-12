@@ -1,0 +1,3107 @@
+{
+ "blocks": {
+  "motion_movesteps": {
+   "opcode": "motion_movesteps",
+   "category": "motion",
+   "shape": "stack",
+   "label": "move (STEPS) steps",
+   "inputs": [
+    {
+     "name": "STEPS",
+     "kind": "value",
+     "valueType": "number",
+     "shadow": {
+      "opcode": "math_number",
+      "field": "NUM",
+      "valueType": "number",
+      "value": "10"
+     }
+    }
+   ],
+   "fields": []
+  },
+  "motion_turnright": {
+   "opcode": "motion_turnright",
+   "category": "motion",
+   "shape": "stack",
+   "label": "turn (DEGREES) degrees",
+   "inputs": [
+    {
+     "name": "DEGREES",
+     "kind": "value",
+     "valueType": "number",
+     "shadow": {
+      "opcode": "math_number",
+      "field": "NUM",
+      "valueType": "number",
+      "value": "15"
+     }
+    }
+   ],
+   "fields": []
+  },
+  "motion_turnleft": {
+   "opcode": "motion_turnleft",
+   "category": "motion",
+   "shape": "stack",
+   "label": "turn (DEGREES) degrees",
+   "inputs": [
+    {
+     "name": "DEGREES",
+     "kind": "value",
+     "valueType": "number",
+     "shadow": {
+      "opcode": "math_number",
+      "field": "NUM",
+      "valueType": "number",
+      "value": "15"
+     }
+    }
+   ],
+   "fields": []
+  },
+  "motion_goto": {
+   "opcode": "motion_goto",
+   "category": "motion",
+   "shape": "stack",
+   "label": "go to (TO)",
+   "inputs": [
+    {
+     "name": "TO",
+     "kind": "value",
+     "valueType": "menu",
+     "shadow": {
+      "opcode": "motion_goto_menu",
+      "field": "TO",
+      "valueType": "menu",
+      "value": "_random_",
+      "options": [
+       {
+        "text": "random position",
+        "value": "_random_"
+       },
+       {
+        "text": "mouse-pointer",
+        "value": "_mouse_"
+       }
+      ],
+      "acceptsText": false
+     }
+    }
+   ],
+   "fields": []
+  },
+  "motion_gotoxy": {
+   "opcode": "motion_gotoxy",
+   "category": "motion",
+   "shape": "stack",
+   "label": "go to x: (X) y: (Y)",
+   "inputs": [
+    {
+     "name": "X",
+     "kind": "value",
+     "valueType": "number",
+     "shadow": {
+      "opcode": "math_number",
+      "field": "NUM",
+      "valueType": "number",
+      "value": "0"
+     }
+    },
+    {
+     "name": "Y",
+     "kind": "value",
+     "valueType": "number",
+     "shadow": {
+      "opcode": "math_number",
+      "field": "NUM",
+      "valueType": "number",
+      "value": "0"
+     }
+    }
+   ],
+   "fields": []
+  },
+  "motion_glideto": {
+   "opcode": "motion_glideto",
+   "category": "motion",
+   "shape": "stack",
+   "label": "glide (SECS) secs to (TO)",
+   "inputs": [
+    {
+     "name": "SECS",
+     "kind": "value",
+     "valueType": "number",
+     "shadow": {
+      "opcode": "math_number",
+      "field": "NUM",
+      "valueType": "number",
+      "value": "1"
+     }
+    },
+    {
+     "name": "TO",
+     "kind": "value",
+     "valueType": "menu",
+     "shadow": {
+      "opcode": "motion_glideto_menu",
+      "field": "TO",
+      "valueType": "menu",
+      "value": "_random_",
+      "options": [
+       {
+        "text": "random position",
+        "value": "_random_"
+       },
+       {
+        "text": "mouse-pointer",
+        "value": "_mouse_"
+       }
+      ],
+      "acceptsText": false
+     }
+    }
+   ],
+   "fields": []
+  },
+  "motion_glidesecstoxy": {
+   "opcode": "motion_glidesecstoxy",
+   "category": "motion",
+   "shape": "stack",
+   "label": "glide (SECS) secs to x: (X) y: (Y)",
+   "inputs": [
+    {
+     "name": "SECS",
+     "kind": "value",
+     "valueType": "number",
+     "shadow": {
+      "opcode": "math_number",
+      "field": "NUM",
+      "valueType": "number",
+      "value": "1"
+     }
+    },
+    {
+     "name": "X",
+     "kind": "value",
+     "valueType": "number",
+     "shadow": {
+      "opcode": "math_number",
+      "field": "NUM",
+      "valueType": "number",
+      "value": "0"
+     }
+    },
+    {
+     "name": "Y",
+     "kind": "value",
+     "valueType": "number",
+     "shadow": {
+      "opcode": "math_number",
+      "field": "NUM",
+      "valueType": "number",
+      "value": "0"
+     }
+    }
+   ],
+   "fields": []
+  },
+  "motion_pointindirection": {
+   "opcode": "motion_pointindirection",
+   "category": "motion",
+   "shape": "stack",
+   "label": "point in direction (DIRECTION)",
+   "inputs": [
+    {
+     "name": "DIRECTION",
+     "kind": "value",
+     "valueType": "angle",
+     "shadow": {
+      "opcode": "math_angle",
+      "field": "NUM",
+      "valueType": "angle",
+      "value": "90"
+     }
+    }
+   ],
+   "fields": []
+  },
+  "motion_pointtowards": {
+   "opcode": "motion_pointtowards",
+   "category": "motion",
+   "shape": "stack",
+   "label": "point towards (TOWARDS)",
+   "inputs": [
+    {
+     "name": "TOWARDS",
+     "kind": "value",
+     "valueType": "menu",
+     "shadow": {
+      "opcode": "motion_pointtowards_menu",
+      "field": "TOWARDS",
+      "valueType": "menu",
+      "value": "_mouse_",
+      "options": [
+       {
+        "text": "mouse-pointer",
+        "value": "_mouse_"
+       },
+       {
+        "text": "random direction",
+        "value": "_random_"
+       }
+      ],
+      "acceptsText": false
+     }
+    }
+   ],
+   "fields": []
+  },
+  "motion_changexby": {
+   "opcode": "motion_changexby",
+   "category": "motion",
+   "shape": "stack",
+   "label": "change x by (DX)",
+   "inputs": [
+    {
+     "name": "DX",
+     "kind": "value",
+     "valueType": "number",
+     "shadow": {
+      "opcode": "math_number",
+      "field": "NUM",
+      "valueType": "number",
+      "value": "10"
+     }
+    }
+   ],
+   "fields": []
+  },
+  "motion_setx": {
+   "opcode": "motion_setx",
+   "category": "motion",
+   "shape": "stack",
+   "label": "set x to (X)",
+   "inputs": [
+    {
+     "name": "X",
+     "kind": "value",
+     "valueType": "number",
+     "shadow": {
+      "opcode": "math_number",
+      "field": "NUM",
+      "valueType": "number",
+      "value": "0"
+     }
+    }
+   ],
+   "fields": []
+  },
+  "motion_changeyby": {
+   "opcode": "motion_changeyby",
+   "category": "motion",
+   "shape": "stack",
+   "label": "change y by (DY)",
+   "inputs": [
+    {
+     "name": "DY",
+     "kind": "value",
+     "valueType": "number",
+     "shadow": {
+      "opcode": "math_number",
+      "field": "NUM",
+      "valueType": "number",
+      "value": "10"
+     }
+    }
+   ],
+   "fields": []
+  },
+  "motion_sety": {
+   "opcode": "motion_sety",
+   "category": "motion",
+   "shape": "stack",
+   "label": "set y to (Y)",
+   "inputs": [
+    {
+     "name": "Y",
+     "kind": "value",
+     "valueType": "number",
+     "shadow": {
+      "opcode": "math_number",
+      "field": "NUM",
+      "valueType": "number",
+      "value": "0"
+     }
+    }
+   ],
+   "fields": []
+  },
+  "motion_ifonedgebounce": {
+   "opcode": "motion_ifonedgebounce",
+   "category": "motion",
+   "shape": "stack",
+   "label": "if on edge, bounce",
+   "inputs": [],
+   "fields": []
+  },
+  "motion_setrotationstyle": {
+   "opcode": "motion_setrotationstyle",
+   "category": "motion",
+   "shape": "stack",
+   "label": "set rotation style [STYLE▾]",
+   "inputs": [],
+   "fields": [
+    {
+     "name": "STYLE",
+     "kind": "dropdown",
+     "options": [
+      {
+       "text": "left-right",
+       "value": "left-right"
+      },
+      {
+       "text": "don't rotate",
+       "value": "don't rotate"
+      },
+      {
+       "text": "all around",
+       "value": "all around"
+      }
+     ],
+     "value": "left-right"
+    }
+   ]
+  },
+  "motion_xposition": {
+   "opcode": "motion_xposition",
+   "category": "motion",
+   "shape": "reporter",
+   "label": "x position",
+   "inputs": [],
+   "fields": []
+  },
+  "motion_yposition": {
+   "opcode": "motion_yposition",
+   "category": "motion",
+   "shape": "reporter",
+   "label": "y position",
+   "inputs": [],
+   "fields": []
+  },
+  "motion_direction": {
+   "opcode": "motion_direction",
+   "category": "motion",
+   "shape": "reporter",
+   "label": "direction",
+   "inputs": [],
+   "fields": []
+  },
+  "looks_sayforsecs": {
+   "opcode": "looks_sayforsecs",
+   "category": "looks",
+   "shape": "stack",
+   "label": "say (MESSAGE) for (SECS) seconds",
+   "inputs": [
+    {
+     "name": "MESSAGE",
+     "kind": "value",
+     "valueType": "text",
+     "shadow": {
+      "opcode": "text",
+      "field": "TEXT",
+      "valueType": "text",
+      "value": "Hello!"
+     }
+    },
+    {
+     "name": "SECS",
+     "kind": "value",
+     "valueType": "number",
+     "shadow": {
+      "opcode": "math_number",
+      "field": "NUM",
+      "valueType": "number",
+      "value": "2"
+     }
+    }
+   ],
+   "fields": []
+  },
+  "looks_say": {
+   "opcode": "looks_say",
+   "category": "looks",
+   "shape": "stack",
+   "label": "say (MESSAGE)",
+   "inputs": [
+    {
+     "name": "MESSAGE",
+     "kind": "value",
+     "valueType": "text",
+     "shadow": {
+      "opcode": "text",
+      "field": "TEXT",
+      "valueType": "text",
+      "value": "Hello!"
+     }
+    }
+   ],
+   "fields": []
+  },
+  "looks_thinkforsecs": {
+   "opcode": "looks_thinkforsecs",
+   "category": "looks",
+   "shape": "stack",
+   "label": "think (MESSAGE) for (SECS) seconds",
+   "inputs": [
+    {
+     "name": "MESSAGE",
+     "kind": "value",
+     "valueType": "text",
+     "shadow": {
+      "opcode": "text",
+      "field": "TEXT",
+      "valueType": "text",
+      "value": "Hmm..."
+     }
+    },
+    {
+     "name": "SECS",
+     "kind": "value",
+     "valueType": "number",
+     "shadow": {
+      "opcode": "math_number",
+      "field": "NUM",
+      "valueType": "number",
+      "value": "2"
+     }
+    }
+   ],
+   "fields": []
+  },
+  "looks_think": {
+   "opcode": "looks_think",
+   "category": "looks",
+   "shape": "stack",
+   "label": "think (MESSAGE)",
+   "inputs": [
+    {
+     "name": "MESSAGE",
+     "kind": "value",
+     "valueType": "text",
+     "shadow": {
+      "opcode": "text",
+      "field": "TEXT",
+      "valueType": "text",
+      "value": "Hmm..."
+     }
+    }
+   ],
+   "fields": []
+  },
+  "looks_switchcostumeto": {
+   "opcode": "looks_switchcostumeto",
+   "category": "looks",
+   "shape": "stack",
+   "label": "switch costume to (COSTUME)",
+   "inputs": [
+    {
+     "name": "COSTUME",
+     "kind": "value",
+     "valueType": "menu",
+     "shadow": {
+      "opcode": "looks_costume",
+      "field": "COSTUME",
+      "valueType": "menu",
+      "value": "costume1",
+      "options": [
+       {
+        "text": "costume1",
+        "value": "costume1"
+       }
+      ],
+      "acceptsText": false
+     }
+    }
+   ],
+   "fields": []
+  },
+  "looks_nextcostume": {
+   "opcode": "looks_nextcostume",
+   "category": "looks",
+   "shape": "stack",
+   "label": "next costume",
+   "inputs": [],
+   "fields": []
+  },
+  "looks_switchbackdropto": {
+   "opcode": "looks_switchbackdropto",
+   "category": "looks",
+   "shape": "stack",
+   "label": "switch backdrop to (BACKDROP)",
+   "inputs": [
+    {
+     "name": "BACKDROP",
+     "kind": "value",
+     "valueType": "menu",
+     "shadow": {
+      "opcode": "looks_backdrops",
+      "field": "BACKDROP",
+      "valueType": "menu",
+      "value": "backdrop1",
+      "options": [
+       {
+        "text": "backdrop1",
+        "value": "backdrop1"
+       },
+       {
+        "text": "next backdrop",
+        "value": "next backdrop"
+       },
+       {
+        "text": "previous backdrop",
+        "value": "previous backdrop"
+       },
+       {
+        "text": "random backdrop",
+        "value": "random backdrop"
+       }
+      ],
+      "acceptsText": false
+     }
+    }
+   ],
+   "fields": []
+  },
+  "looks_nextbackdrop": {
+   "opcode": "looks_nextbackdrop",
+   "category": "looks",
+   "shape": "stack",
+   "label": "next backdrop",
+   "inputs": [],
+   "fields": []
+  },
+  "looks_changesizeby": {
+   "opcode": "looks_changesizeby",
+   "category": "looks",
+   "shape": "stack",
+   "label": "change size by (CHANGE)",
+   "inputs": [
+    {
+     "name": "CHANGE",
+     "kind": "value",
+     "valueType": "number",
+     "shadow": {
+      "opcode": "math_number",
+      "field": "NUM",
+      "valueType": "number",
+      "value": "10"
+     }
+    }
+   ],
+   "fields": []
+  },
+  "looks_setsizeto": {
+   "opcode": "looks_setsizeto",
+   "category": "looks",
+   "shape": "stack",
+   "label": "set size to (SIZE) %",
+   "inputs": [
+    {
+     "name": "SIZE",
+     "kind": "value",
+     "valueType": "number",
+     "shadow": {
+      "opcode": "math_number",
+      "field": "NUM",
+      "valueType": "number",
+      "value": "100"
+     }
+    }
+   ],
+   "fields": []
+  },
+  "looks_changeeffectby": {
+   "opcode": "looks_changeeffectby",
+   "category": "looks",
+   "shape": "stack",
+   "label": "change [EFFECT▾] effect by (CHANGE)",
+   "inputs": [
+    {
+     "name": "CHANGE",
+     "kind": "value",
+     "valueType": "number",
+     "shadow": {
+      "opcode": "math_number",
+      "field": "NUM",
+      "valueType": "number",
+      "value": "25"
+     }
+    }
+   ],
+   "fields": [
+    {
+     "name": "EFFECT",
+     "kind": "dropdown",
+     "options": [
+      {
+       "text": "color",
+       "value": "COLOR"
+      },
+      {
+       "text": "fisheye",
+       "value": "FISHEYE"
+      },
+      {
+       "text": "whirl",
+       "value": "WHIRL"
+      },
+      {
+       "text": "pixelate",
+       "value": "PIXELATE"
+      },
+      {
+       "text": "mosaic",
+       "value": "MOSAIC"
+      },
+      {
+       "text": "brightness",
+       "value": "BRIGHTNESS"
+      },
+      {
+       "text": "ghost",
+       "value": "GHOST"
+      }
+     ],
+     "value": "COLOR"
+    }
+   ]
+  },
+  "looks_seteffectto": {
+   "opcode": "looks_seteffectto",
+   "category": "looks",
+   "shape": "stack",
+   "label": "set [EFFECT▾] effect to (VALUE)",
+   "inputs": [
+    {
+     "name": "VALUE",
+     "kind": "value",
+     "valueType": "number",
+     "shadow": {
+      "opcode": "math_number",
+      "field": "NUM",
+      "valueType": "number",
+      "value": "0"
+     }
+    }
+   ],
+   "fields": [
+    {
+     "name": "EFFECT",
+     "kind": "dropdown",
+     "options": [
+      {
+       "text": "color",
+       "value": "COLOR"
+      },
+      {
+       "text": "fisheye",
+       "value": "FISHEYE"
+      },
+      {
+       "text": "whirl",
+       "value": "WHIRL"
+      },
+      {
+       "text": "pixelate",
+       "value": "PIXELATE"
+      },
+      {
+       "text": "mosaic",
+       "value": "MOSAIC"
+      },
+      {
+       "text": "brightness",
+       "value": "BRIGHTNESS"
+      },
+      {
+       "text": "ghost",
+       "value": "GHOST"
+      }
+     ],
+     "value": "COLOR"
+    }
+   ]
+  },
+  "looks_cleargraphiceffects": {
+   "opcode": "looks_cleargraphiceffects",
+   "category": "looks",
+   "shape": "stack",
+   "label": "clear graphic effects",
+   "inputs": [],
+   "fields": []
+  },
+  "looks_show": {
+   "opcode": "looks_show",
+   "category": "looks",
+   "shape": "stack",
+   "label": "show",
+   "inputs": [],
+   "fields": []
+  },
+  "looks_hide": {
+   "opcode": "looks_hide",
+   "category": "looks",
+   "shape": "stack",
+   "label": "hide",
+   "inputs": [],
+   "fields": []
+  },
+  "looks_gotofrontback": {
+   "opcode": "looks_gotofrontback",
+   "category": "looks",
+   "shape": "stack",
+   "label": "go to [FRONT_BACK▾] layer",
+   "inputs": [],
+   "fields": [
+    {
+     "name": "FRONT_BACK",
+     "kind": "dropdown",
+     "options": [
+      {
+       "text": "front",
+       "value": "front"
+      },
+      {
+       "text": "back",
+       "value": "back"
+      }
+     ],
+     "value": "front"
+    }
+   ]
+  },
+  "looks_goforwardbackwardlayers": {
+   "opcode": "looks_goforwardbackwardlayers",
+   "category": "looks",
+   "shape": "stack",
+   "label": "go [FORWARD_BACKWARD▾] (NUM) layers",
+   "inputs": [
+    {
+     "name": "NUM",
+     "kind": "value",
+     "valueType": "integer",
+     "shadow": {
+      "opcode": "math_integer",
+      "field": "NUM",
+      "valueType": "integer",
+      "value": "1"
+     }
+    }
+   ],
+   "fields": [
+    {
+     "name": "FORWARD_BACKWARD",
+     "kind": "dropdown",
+     "options": [
+      {
+       "text": "forward",
+       "value": "forward"
+      },
+      {
+       "text": "backward",
+       "value": "backward"
+      }
+     ],
+     "value": "forward"
+    }
+   ]
+  },
+  "looks_costumenumbername": {
+   "opcode": "looks_costumenumbername",
+   "category": "looks",
+   "shape": "reporter",
+   "label": "costume [NUMBER_NAME▾]",
+   "inputs": [],
+   "fields": [
+    {
+     "name": "NUMBER_NAME",
+     "kind": "dropdown",
+     "options": [
+      {
+       "text": "number",
+       "value": "number"
+      },
+      {
+       "text": "name",
+       "value": "name"
+      }
+     ],
+     "value": "number"
+    }
+   ]
+  },
+  "looks_backdropnumbername": {
+   "opcode": "looks_backdropnumbername",
+   "category": "looks",
+   "shape": "reporter",
+   "label": "backdrop [NUMBER_NAME▾]",
+   "inputs": [],
+   "fields": [
+    {
+     "name": "NUMBER_NAME",
+     "kind": "dropdown",
+     "options": [
+      {
+       "text": "number",
+       "value": "number"
+      },
+      {
+       "text": "name",
+       "value": "name"
+      }
+     ],
+     "value": "number"
+    }
+   ]
+  },
+  "looks_size": {
+   "opcode": "looks_size",
+   "category": "looks",
+   "shape": "reporter",
+   "label": "size",
+   "inputs": [],
+   "fields": []
+  },
+  "sound_playuntildone": {
+   "opcode": "sound_playuntildone",
+   "category": "sound",
+   "shape": "stack",
+   "label": "play sound (SOUND_MENU) until done",
+   "inputs": [
+    {
+     "name": "SOUND_MENU",
+     "kind": "value",
+     "valueType": "menu",
+     "shadow": {
+      "opcode": "sound_sounds_menu",
+      "field": "SOUND_MENU",
+      "valueType": "menu",
+      "value": "",
+      "options": [
+       {
+        "text": "",
+        "value": ""
+       },
+       {
+        "text": "record...",
+        "value": "function t(){return(this&&this!==T&&this instanceof t?n:e).apply(o?i:this,arguments)}"
+       }
+      ],
+      "acceptsText": false
+     }
+    }
+   ],
+   "fields": []
+  },
+  "sound_play": {
+   "opcode": "sound_play",
+   "category": "sound",
+   "shape": "stack",
+   "label": "start sound (SOUND_MENU)",
+   "inputs": [
+    {
+     "name": "SOUND_MENU",
+     "kind": "value",
+     "valueType": "menu",
+     "shadow": {
+      "opcode": "sound_sounds_menu",
+      "field": "SOUND_MENU",
+      "valueType": "menu",
+      "value": "",
+      "options": [
+       {
+        "text": "",
+        "value": ""
+       },
+       {
+        "text": "record...",
+        "value": "function t(){return(this&&this!==T&&this instanceof t?n:e).apply(o?i:this,arguments)}"
+       }
+      ],
+      "acceptsText": false
+     }
+    }
+   ],
+   "fields": []
+  },
+  "sound_stopallsounds": {
+   "opcode": "sound_stopallsounds",
+   "category": "sound",
+   "shape": "stack",
+   "label": "stop all sounds",
+   "inputs": [],
+   "fields": []
+  },
+  "sound_changeeffectby": {
+   "opcode": "sound_changeeffectby",
+   "category": "sound",
+   "shape": "stack",
+   "label": "change [EFFECT▾] effect by (VALUE)",
+   "inputs": [
+    {
+     "name": "VALUE",
+     "kind": "value",
+     "valueType": "number",
+     "shadow": {
+      "opcode": "math_number",
+      "field": "NUM",
+      "valueType": "number",
+      "value": "10"
+     }
+    }
+   ],
+   "fields": [
+    {
+     "name": "EFFECT",
+     "kind": "dropdown",
+     "options": [
+      {
+       "text": "pitch",
+       "value": "PITCH"
+      },
+      {
+       "text": "pan left/right",
+       "value": "PAN"
+      }
+     ],
+     "value": "PITCH"
+    }
+   ]
+  },
+  "sound_seteffectto": {
+   "opcode": "sound_seteffectto",
+   "category": "sound",
+   "shape": "stack",
+   "label": "set [EFFECT▾] effect to (VALUE)",
+   "inputs": [
+    {
+     "name": "VALUE",
+     "kind": "value",
+     "valueType": "number",
+     "shadow": {
+      "opcode": "math_number",
+      "field": "NUM",
+      "valueType": "number",
+      "value": "100"
+     }
+    }
+   ],
+   "fields": [
+    {
+     "name": "EFFECT",
+     "kind": "dropdown",
+     "options": [
+      {
+       "text": "pitch",
+       "value": "PITCH"
+      },
+      {
+       "text": "pan left/right",
+       "value": "PAN"
+      }
+     ],
+     "value": "PITCH"
+    }
+   ]
+  },
+  "sound_cleareffects": {
+   "opcode": "sound_cleareffects",
+   "category": "sound",
+   "shape": "stack",
+   "label": "clear sound effects",
+   "inputs": [],
+   "fields": []
+  },
+  "sound_changevolumeby": {
+   "opcode": "sound_changevolumeby",
+   "category": "sound",
+   "shape": "stack",
+   "label": "change volume by (VOLUME)",
+   "inputs": [
+    {
+     "name": "VOLUME",
+     "kind": "value",
+     "valueType": "number",
+     "shadow": {
+      "opcode": "math_number",
+      "field": "NUM",
+      "valueType": "number",
+      "value": "-10"
+     }
+    }
+   ],
+   "fields": []
+  },
+  "sound_setvolumeto": {
+   "opcode": "sound_setvolumeto",
+   "category": "sound",
+   "shape": "stack",
+   "label": "set volume to (VOLUME) %",
+   "inputs": [
+    {
+     "name": "VOLUME",
+     "kind": "value",
+     "valueType": "number",
+     "shadow": {
+      "opcode": "math_number",
+      "field": "NUM",
+      "valueType": "number",
+      "value": "100"
+     }
+    }
+   ],
+   "fields": []
+  },
+  "sound_volume": {
+   "opcode": "sound_volume",
+   "category": "sound",
+   "shape": "reporter",
+   "label": "volume",
+   "inputs": [],
+   "fields": []
+  },
+  "event_whenflagclicked": {
+   "opcode": "event_whenflagclicked",
+   "category": "events",
+   "shape": "hat",
+   "label": "when clicked",
+   "inputs": [],
+   "fields": []
+  },
+  "event_whenkeypressed": {
+   "opcode": "event_whenkeypressed",
+   "category": "events",
+   "shape": "hat",
+   "label": "when [KEY_OPTION▾] key pressed",
+   "inputs": [],
+   "fields": [
+    {
+     "name": "KEY_OPTION",
+     "kind": "dropdown",
+     "options": [
+      {
+       "text": "space",
+       "value": "space"
+      },
+      {
+       "text": "up arrow",
+       "value": "up arrow"
+      },
+      {
+       "text": "down arrow",
+       "value": "down arrow"
+      },
+      {
+       "text": "right arrow",
+       "value": "right arrow"
+      },
+      {
+       "text": "left arrow",
+       "value": "left arrow"
+      },
+      {
+       "text": "any",
+       "value": "any"
+      },
+      {
+       "text": "a",
+       "value": "a"
+      },
+      {
+       "text": "b",
+       "value": "b"
+      },
+      {
+       "text": "c",
+       "value": "c"
+      },
+      {
+       "text": "d",
+       "value": "d"
+      },
+      {
+       "text": "e",
+       "value": "e"
+      },
+      {
+       "text": "f",
+       "value": "f"
+      },
+      {
+       "text": "g",
+       "value": "g"
+      },
+      {
+       "text": "h",
+       "value": "h"
+      },
+      {
+       "text": "i",
+       "value": "i"
+      },
+      {
+       "text": "j",
+       "value": "j"
+      },
+      {
+       "text": "k",
+       "value": "k"
+      },
+      {
+       "text": "l",
+       "value": "l"
+      },
+      {
+       "text": "m",
+       "value": "m"
+      },
+      {
+       "text": "n",
+       "value": "n"
+      },
+      {
+       "text": "o",
+       "value": "o"
+      },
+      {
+       "text": "p",
+       "value": "p"
+      },
+      {
+       "text": "q",
+       "value": "q"
+      },
+      {
+       "text": "r",
+       "value": "r"
+      },
+      {
+       "text": "s",
+       "value": "s"
+      },
+      {
+       "text": "t",
+       "value": "t"
+      },
+      {
+       "text": "u",
+       "value": "u"
+      },
+      {
+       "text": "v",
+       "value": "v"
+      },
+      {
+       "text": "w",
+       "value": "w"
+      },
+      {
+       "text": "x",
+       "value": "x"
+      },
+      {
+       "text": "y",
+       "value": "y"
+      },
+      {
+       "text": "z",
+       "value": "z"
+      },
+      {
+       "text": "0",
+       "value": "0"
+      },
+      {
+       "text": "1",
+       "value": "1"
+      },
+      {
+       "text": "2",
+       "value": "2"
+      },
+      {
+       "text": "3",
+       "value": "3"
+      },
+      {
+       "text": "4",
+       "value": "4"
+      },
+      {
+       "text": "5",
+       "value": "5"
+      },
+      {
+       "text": "6",
+       "value": "6"
+      },
+      {
+       "text": "7",
+       "value": "7"
+      },
+      {
+       "text": "8",
+       "value": "8"
+      },
+      {
+       "text": "9",
+       "value": "9"
+      }
+     ],
+     "value": "space"
+    }
+   ]
+  },
+  "event_whenthisspriteclicked": {
+   "opcode": "event_whenthisspriteclicked",
+   "category": "events",
+   "shape": "hat",
+   "label": "when this sprite clicked",
+   "inputs": [],
+   "fields": []
+  },
+  "event_whenbackdropswitchesto": {
+   "opcode": "event_whenbackdropswitchesto",
+   "category": "events",
+   "shape": "hat",
+   "label": "when backdrop switches to [BACKDROP▾]",
+   "inputs": [],
+   "fields": [
+    {
+     "name": "BACKDROP",
+     "kind": "dropdown",
+     "options": [
+      {
+       "text": "backdrop1",
+       "value": "backdrop1"
+      }
+     ],
+     "value": "backdrop1"
+    }
+   ]
+  },
+  "event_whengreaterthan": {
+   "opcode": "event_whengreaterthan",
+   "category": "events",
+   "shape": "hat",
+   "label": "when [WHENGREATERTHANMENU▾] > (VALUE)",
+   "inputs": [
+    {
+     "name": "VALUE",
+     "kind": "value",
+     "valueType": "number",
+     "shadow": {
+      "opcode": "math_number",
+      "field": "NUM",
+      "valueType": "number",
+      "value": "10"
+     }
+    }
+   ],
+   "fields": [
+    {
+     "name": "WHENGREATERTHANMENU",
+     "kind": "dropdown",
+     "options": [
+      {
+       "text": "loudness",
+       "value": "LOUDNESS"
+      },
+      {
+       "text": "timer",
+       "value": "TIMER"
+      }
+     ],
+     "value": "LOUDNESS"
+    }
+   ]
+  },
+  "event_whenbroadcastreceived": {
+   "opcode": "event_whenbroadcastreceived",
+   "category": "events",
+   "shape": "hat",
+   "label": "when I receive [BROADCAST_OPTION]",
+   "inputs": [],
+   "fields": [
+    {
+     "name": "BROADCAST_OPTION",
+     "kind": "variable",
+     "variableType": "broadcast_msg"
+    }
+   ]
+  },
+  "event_broadcast": {
+   "opcode": "event_broadcast",
+   "category": "events",
+   "shape": "stack",
+   "label": "broadcast (BROADCAST_INPUT)",
+   "inputs": [
+    {
+     "name": "BROADCAST_INPUT",
+     "kind": "value",
+     "valueType": "broadcast",
+     "shadow": {
+      "opcode": "event_broadcast_menu",
+      "field": "BROADCAST_OPTION",
+      "valueType": "broadcast",
+      "value": "message1"
+     }
+    }
+   ],
+   "fields": []
+  },
+  "event_broadcastandwait": {
+   "opcode": "event_broadcastandwait",
+   "category": "events",
+   "shape": "stack",
+   "label": "broadcast (BROADCAST_INPUT) and wait",
+   "inputs": [
+    {
+     "name": "BROADCAST_INPUT",
+     "kind": "value",
+     "valueType": "broadcast",
+     "shadow": {
+      "opcode": "event_broadcast_menu",
+      "field": "BROADCAST_OPTION",
+      "valueType": "broadcast",
+      "value": "message1"
+     }
+    }
+   ],
+   "fields": []
+  },
+  "control_wait": {
+   "opcode": "control_wait",
+   "category": "control",
+   "shape": "stack",
+   "label": "wait (DURATION) seconds",
+   "inputs": [
+    {
+     "name": "DURATION",
+     "kind": "value",
+     "valueType": "positive_number",
+     "shadow": {
+      "opcode": "math_positive_number",
+      "field": "NUM",
+      "valueType": "positive_number",
+      "value": "1"
+     }
+    }
+   ],
+   "fields": []
+  },
+  "control_repeat": {
+   "opcode": "control_repeat",
+   "category": "control",
+   "shape": "c",
+   "label": "repeat (TIMES) {SUBSTACK}",
+   "inputs": [
+    {
+     "name": "TIMES",
+     "kind": "value",
+     "valueType": "whole_number",
+     "shadow": {
+      "opcode": "math_whole_number",
+      "field": "NUM",
+      "valueType": "whole_number",
+      "value": "10"
+     }
+    },
+    {
+     "name": "SUBSTACK",
+     "kind": "statement"
+    }
+   ],
+   "fields": []
+  },
+  "control_forever": {
+   "opcode": "control_forever",
+   "category": "control",
+   "shape": "c",
+   "label": "forever {SUBSTACK}",
+   "inputs": [
+    {
+     "name": "SUBSTACK",
+     "kind": "statement"
+    }
+   ],
+   "fields": [],
+   "terminal": true
+  },
+  "control_if": {
+   "opcode": "control_if",
+   "category": "control",
+   "shape": "c",
+   "label": "if <CONDITION> then {SUBSTACK}",
+   "inputs": [
+    {
+     "name": "CONDITION",
+     "kind": "value",
+     "valueType": "boolean",
+     "shadow": null
+    },
+    {
+     "name": "SUBSTACK",
+     "kind": "statement"
+    }
+   ],
+   "fields": []
+  },
+  "control_if_else": {
+   "opcode": "control_if_else",
+   "category": "control",
+   "shape": "c",
+   "label": "if <CONDITION> then {SUBSTACK} else {SUBSTACK2}",
+   "inputs": [
+    {
+     "name": "CONDITION",
+     "kind": "value",
+     "valueType": "boolean",
+     "shadow": null
+    },
+    {
+     "name": "SUBSTACK",
+     "kind": "statement"
+    },
+    {
+     "name": "SUBSTACK2",
+     "kind": "statement"
+    }
+   ],
+   "fields": []
+  },
+  "control_wait_until": {
+   "opcode": "control_wait_until",
+   "category": "control",
+   "shape": "stack",
+   "label": "wait until <CONDITION>",
+   "inputs": [
+    {
+     "name": "CONDITION",
+     "kind": "value",
+     "valueType": "boolean",
+     "shadow": null
+    }
+   ],
+   "fields": []
+  },
+  "control_repeat_until": {
+   "opcode": "control_repeat_until",
+   "category": "control",
+   "shape": "c",
+   "label": "repeat until <CONDITION> {SUBSTACK}",
+   "inputs": [
+    {
+     "name": "CONDITION",
+     "kind": "value",
+     "valueType": "boolean",
+     "shadow": null
+    },
+    {
+     "name": "SUBSTACK",
+     "kind": "statement"
+    }
+   ],
+   "fields": []
+  },
+  "control_while": {
+   "opcode": "control_while",
+   "category": "control",
+   "shape": "c",
+   "label": "while <CONDITION> {SUBSTACK}",
+   "inputs": [
+    {
+     "name": "CONDITION",
+     "kind": "value",
+     "valueType": "boolean",
+     "shadow": null
+    },
+    {
+     "name": "SUBSTACK",
+     "kind": "statement"
+    }
+   ],
+   "fields": []
+  },
+  "control_stop": {
+   "opcode": "control_stop",
+   "category": "control",
+   "shape": "cap",
+   "label": "stop [STOP_OPTION▾]",
+   "inputs": [],
+   "fields": [
+    {
+     "name": "STOP_OPTION",
+     "kind": "dropdown",
+     "options": [
+      {
+       "text": "all",
+       "value": "all"
+      },
+      {
+       "text": "this script",
+       "value": "this script"
+      },
+      {
+       "text": "other scripts in sprite",
+       "value": "other scripts in sprite"
+      }
+     ],
+     "value": "all"
+    }
+   ],
+   "mutation": "<mutation xmlns=\"http://www.w3.org/1999/xhtml\" hasnext=\"false\"></mutation>"
+  },
+  "control_start_as_clone": {
+   "opcode": "control_start_as_clone",
+   "category": "control",
+   "shape": "hat",
+   "label": "when I start as a clone",
+   "inputs": [],
+   "fields": []
+  },
+  "control_create_clone_of": {
+   "opcode": "control_create_clone_of",
+   "category": "control",
+   "shape": "stack",
+   "label": "create clone of (CLONE_OPTION)",
+   "inputs": [
+    {
+     "name": "CLONE_OPTION",
+     "kind": "value",
+     "valueType": "menu",
+     "shadow": {
+      "opcode": "control_create_clone_of_menu",
+      "field": "CLONE_OPTION",
+      "valueType": "menu",
+      "value": "_myself_",
+      "options": [
+       {
+        "text": "myself",
+        "value": "_myself_"
+       }
+      ],
+      "acceptsText": false
+     }
+    }
+   ],
+   "fields": []
+  },
+  "control_delete_this_clone": {
+   "opcode": "control_delete_this_clone",
+   "category": "control",
+   "shape": "cap",
+   "label": "delete this clone",
+   "inputs": [],
+   "fields": []
+  },
+  "sensing_touchingobject": {
+   "opcode": "sensing_touchingobject",
+   "category": "sensing",
+   "shape": "boolean",
+   "label": "touching (TOUCHINGOBJECTMENU) ?",
+   "inputs": [
+    {
+     "name": "TOUCHINGOBJECTMENU",
+     "kind": "value",
+     "valueType": "menu",
+     "shadow": {
+      "opcode": "sensing_touchingobjectmenu",
+      "field": "TOUCHINGOBJECTMENU",
+      "valueType": "menu",
+      "value": "_mouse_",
+      "options": [
+       {
+        "text": "mouse-pointer",
+        "value": "_mouse_"
+       },
+       {
+        "text": "edge",
+        "value": "_edge_"
+       }
+      ],
+      "acceptsText": false
+     }
+    }
+   ],
+   "fields": []
+  },
+  "sensing_touchingcolor": {
+   "opcode": "sensing_touchingcolor",
+   "category": "sensing",
+   "shape": "boolean",
+   "label": "touching color (COLOR) ?",
+   "inputs": [
+    {
+     "name": "COLOR",
+     "kind": "value",
+     "valueType": "color",
+     "shadow": {
+      "opcode": "colour_picker",
+      "field": "COLOUR",
+      "valueType": "color",
+      "value": "#e722dc"
+     }
+    }
+   ],
+   "fields": []
+  },
+  "sensing_coloristouchingcolor": {
+   "opcode": "sensing_coloristouchingcolor",
+   "category": "sensing",
+   "shape": "boolean",
+   "label": "color (COLOR) is touching (COLOR2) ?",
+   "inputs": [
+    {
+     "name": "COLOR",
+     "kind": "value",
+     "valueType": "color",
+     "shadow": {
+      "opcode": "colour_picker",
+      "field": "COLOUR",
+      "valueType": "color",
+      "value": "#bf0e7f"
+     }
+    },
+    {
+     "name": "COLOR2",
+     "kind": "value",
+     "valueType": "color",
+     "shadow": {
+      "opcode": "colour_picker",
+      "field": "COLOUR",
+      "valueType": "color",
+      "value": "#95327f"
+     }
+    }
+   ],
+   "fields": []
+  },
+  "sensing_distanceto": {
+   "opcode": "sensing_distanceto",
+   "category": "sensing",
+   "shape": "reporter",
+   "label": "distance to (DISTANCETOMENU)",
+   "inputs": [
+    {
+     "name": "DISTANCETOMENU",
+     "kind": "value",
+     "valueType": "menu",
+     "shadow": {
+      "opcode": "sensing_distancetomenu",
+      "field": "DISTANCETOMENU",
+      "valueType": "menu",
+      "value": "_mouse_",
+      "options": [
+       {
+        "text": "mouse-pointer",
+        "value": "_mouse_"
+       }
+      ],
+      "acceptsText": false
+     }
+    }
+   ],
+   "fields": []
+  },
+  "sensing_askandwait": {
+   "opcode": "sensing_askandwait",
+   "category": "sensing",
+   "shape": "stack",
+   "label": "ask (QUESTION) and wait",
+   "inputs": [
+    {
+     "name": "QUESTION",
+     "kind": "value",
+     "valueType": "text",
+     "shadow": {
+      "opcode": "text",
+      "field": "TEXT",
+      "valueType": "text",
+      "value": "What's your name?"
+     }
+    }
+   ],
+   "fields": []
+  },
+  "sensing_answer": {
+   "opcode": "sensing_answer",
+   "category": "sensing",
+   "shape": "reporter",
+   "label": "answer",
+   "inputs": [],
+   "fields": []
+  },
+  "sensing_keypressed": {
+   "opcode": "sensing_keypressed",
+   "category": "sensing",
+   "shape": "boolean",
+   "label": "key (KEY_OPTION) pressed?",
+   "inputs": [
+    {
+     "name": "KEY_OPTION",
+     "kind": "value",
+     "valueType": "menu",
+     "shadow": {
+      "opcode": "sensing_keyoptions",
+      "field": "KEY_OPTION",
+      "valueType": "menu",
+      "value": "space",
+      "options": [
+       {
+        "text": "space",
+        "value": "space"
+       },
+       {
+        "text": "up arrow",
+        "value": "up arrow"
+       },
+       {
+        "text": "down arrow",
+        "value": "down arrow"
+       },
+       {
+        "text": "right arrow",
+        "value": "right arrow"
+       },
+       {
+        "text": "left arrow",
+        "value": "left arrow"
+       },
+       {
+        "text": "any",
+        "value": "any"
+       },
+       {
+        "text": "a",
+        "value": "a"
+       },
+       {
+        "text": "b",
+        "value": "b"
+       },
+       {
+        "text": "c",
+        "value": "c"
+       },
+       {
+        "text": "d",
+        "value": "d"
+       },
+       {
+        "text": "e",
+        "value": "e"
+       },
+       {
+        "text": "f",
+        "value": "f"
+       },
+       {
+        "text": "g",
+        "value": "g"
+       },
+       {
+        "text": "h",
+        "value": "h"
+       },
+       {
+        "text": "i",
+        "value": "i"
+       },
+       {
+        "text": "j",
+        "value": "j"
+       },
+       {
+        "text": "k",
+        "value": "k"
+       },
+       {
+        "text": "l",
+        "value": "l"
+       },
+       {
+        "text": "m",
+        "value": "m"
+       },
+       {
+        "text": "n",
+        "value": "n"
+       },
+       {
+        "text": "o",
+        "value": "o"
+       },
+       {
+        "text": "p",
+        "value": "p"
+       },
+       {
+        "text": "q",
+        "value": "q"
+       },
+       {
+        "text": "r",
+        "value": "r"
+       },
+       {
+        "text": "s",
+        "value": "s"
+       },
+       {
+        "text": "t",
+        "value": "t"
+       },
+       {
+        "text": "u",
+        "value": "u"
+       },
+       {
+        "text": "v",
+        "value": "v"
+       },
+       {
+        "text": "w",
+        "value": "w"
+       },
+       {
+        "text": "x",
+        "value": "x"
+       },
+       {
+        "text": "y",
+        "value": "y"
+       },
+       {
+        "text": "z",
+        "value": "z"
+       },
+       {
+        "text": "0",
+        "value": "0"
+       },
+       {
+        "text": "1",
+        "value": "1"
+       },
+       {
+        "text": "2",
+        "value": "2"
+       },
+       {
+        "text": "3",
+        "value": "3"
+       },
+       {
+        "text": "4",
+        "value": "4"
+       },
+       {
+        "text": "5",
+        "value": "5"
+       },
+       {
+        "text": "6",
+        "value": "6"
+       },
+       {
+        "text": "7",
+        "value": "7"
+       },
+       {
+        "text": "8",
+        "value": "8"
+       },
+       {
+        "text": "9",
+        "value": "9"
+       }
+      ],
+      "acceptsText": false
+     }
+    }
+   ],
+   "fields": []
+  },
+  "sensing_mousedown": {
+   "opcode": "sensing_mousedown",
+   "category": "sensing",
+   "shape": "boolean",
+   "label": "mouse down?",
+   "inputs": [],
+   "fields": []
+  },
+  "sensing_mousex": {
+   "opcode": "sensing_mousex",
+   "category": "sensing",
+   "shape": "reporter",
+   "label": "mouse x",
+   "inputs": [],
+   "fields": []
+  },
+  "sensing_mousey": {
+   "opcode": "sensing_mousey",
+   "category": "sensing",
+   "shape": "reporter",
+   "label": "mouse y",
+   "inputs": [],
+   "fields": []
+  },
+  "sensing_setdragmode": {
+   "opcode": "sensing_setdragmode",
+   "category": "sensing",
+   "shape": "stack",
+   "label": "set drag mode [DRAG_MODE▾]",
+   "inputs": [],
+   "fields": [
+    {
+     "name": "DRAG_MODE",
+     "kind": "dropdown",
+     "options": [
+      {
+       "text": "draggable",
+       "value": "draggable"
+      },
+      {
+       "text": "not draggable",
+       "value": "not draggable"
+      }
+     ],
+     "value": "draggable"
+    }
+   ]
+  },
+  "sensing_loudness": {
+   "opcode": "sensing_loudness",
+   "category": "sensing",
+   "shape": "reporter",
+   "label": "loudness",
+   "inputs": [],
+   "fields": []
+  },
+  "sensing_timer": {
+   "opcode": "sensing_timer",
+   "category": "sensing",
+   "shape": "reporter",
+   "label": "timer",
+   "inputs": [],
+   "fields": []
+  },
+  "sensing_resettimer": {
+   "opcode": "sensing_resettimer",
+   "category": "sensing",
+   "shape": "stack",
+   "label": "reset timer",
+   "inputs": [],
+   "fields": []
+  },
+  "sensing_of": {
+   "opcode": "sensing_of",
+   "category": "sensing",
+   "shape": "reporter",
+   "label": "[PROPERTY▾] of (OBJECT)",
+   "inputs": [
+    {
+     "name": "OBJECT",
+     "kind": "value",
+     "valueType": "menu",
+     "shadow": {
+      "opcode": "sensing_of_object_menu",
+      "field": "OBJECT",
+      "valueType": "menu",
+      "value": "_stage_",
+      "options": [
+       {
+        "text": "Stage",
+        "value": "_stage_"
+       }
+      ],
+      "acceptsText": false
+     }
+    }
+   ],
+   "fields": [
+    {
+     "name": "PROPERTY",
+     "kind": "dropdown",
+     "options": [
+      {
+       "text": "backdrop #",
+       "value": "backdrop #"
+      },
+      {
+       "text": "backdrop name",
+       "value": "backdrop name"
+      },
+      {
+       "text": "volume",
+       "value": "volume"
+      },
+      {
+       "text": "my variable",
+       "value": "my variable"
+      }
+     ],
+     "value": "backdrop #"
+    }
+   ]
+  },
+  "sensing_current": {
+   "opcode": "sensing_current",
+   "category": "sensing",
+   "shape": "reporter",
+   "label": "current [CURRENTMENU▾]",
+   "inputs": [],
+   "fields": [
+    {
+     "name": "CURRENTMENU",
+     "kind": "dropdown",
+     "options": [
+      {
+       "text": "year",
+       "value": "YEAR"
+      },
+      {
+       "text": "month",
+       "value": "MONTH"
+      },
+      {
+       "text": "date",
+       "value": "DATE"
+      },
+      {
+       "text": "day of week",
+       "value": "DAYOFWEEK"
+      },
+      {
+       "text": "hour",
+       "value": "HOUR"
+      },
+      {
+       "text": "minute",
+       "value": "MINUTE"
+      },
+      {
+       "text": "second",
+       "value": "SECOND"
+      }
+     ],
+     "value": "YEAR"
+    }
+   ]
+  },
+  "sensing_dayssince2000": {
+   "opcode": "sensing_dayssince2000",
+   "category": "sensing",
+   "shape": "reporter",
+   "label": "days since 2000",
+   "inputs": [],
+   "fields": []
+  },
+  "sensing_online": {
+   "opcode": "sensing_online",
+   "category": "sensing",
+   "shape": "boolean",
+   "label": "online?",
+   "inputs": [],
+   "fields": []
+  },
+  "sensing_username": {
+   "opcode": "sensing_username",
+   "category": "sensing",
+   "shape": "reporter",
+   "label": "username",
+   "inputs": [],
+   "fields": []
+  },
+  "operator_add": {
+   "opcode": "operator_add",
+   "category": "operators",
+   "shape": "reporter",
+   "label": "(NUM1) + (NUM2)",
+   "inputs": [
+    {
+     "name": "NUM1",
+     "kind": "value",
+     "valueType": "number",
+     "shadow": {
+      "opcode": "math_number",
+      "field": "NUM",
+      "valueType": "number",
+      "value": ""
+     }
+    },
+    {
+     "name": "NUM2",
+     "kind": "value",
+     "valueType": "number",
+     "shadow": {
+      "opcode": "math_number",
+      "field": "NUM",
+      "valueType": "number",
+      "value": ""
+     }
+    }
+   ],
+   "fields": []
+  },
+  "operator_subtract": {
+   "opcode": "operator_subtract",
+   "category": "operators",
+   "shape": "reporter",
+   "label": "(NUM1) - (NUM2)",
+   "inputs": [
+    {
+     "name": "NUM1",
+     "kind": "value",
+     "valueType": "number",
+     "shadow": {
+      "opcode": "math_number",
+      "field": "NUM",
+      "valueType": "number",
+      "value": ""
+     }
+    },
+    {
+     "name": "NUM2",
+     "kind": "value",
+     "valueType": "number",
+     "shadow": {
+      "opcode": "math_number",
+      "field": "NUM",
+      "valueType": "number",
+      "value": ""
+     }
+    }
+   ],
+   "fields": []
+  },
+  "operator_multiply": {
+   "opcode": "operator_multiply",
+   "category": "operators",
+   "shape": "reporter",
+   "label": "(NUM1) * (NUM2)",
+   "inputs": [
+    {
+     "name": "NUM1",
+     "kind": "value",
+     "valueType": "number",
+     "shadow": {
+      "opcode": "math_number",
+      "field": "NUM",
+      "valueType": "number",
+      "value": ""
+     }
+    },
+    {
+     "name": "NUM2",
+     "kind": "value",
+     "valueType": "number",
+     "shadow": {
+      "opcode": "math_number",
+      "field": "NUM",
+      "valueType": "number",
+      "value": ""
+     }
+    }
+   ],
+   "fields": []
+  },
+  "operator_divide": {
+   "opcode": "operator_divide",
+   "category": "operators",
+   "shape": "reporter",
+   "label": "(NUM1) / (NUM2)",
+   "inputs": [
+    {
+     "name": "NUM1",
+     "kind": "value",
+     "valueType": "number",
+     "shadow": {
+      "opcode": "math_number",
+      "field": "NUM",
+      "valueType": "number",
+      "value": ""
+     }
+    },
+    {
+     "name": "NUM2",
+     "kind": "value",
+     "valueType": "number",
+     "shadow": {
+      "opcode": "math_number",
+      "field": "NUM",
+      "valueType": "number",
+      "value": ""
+     }
+    }
+   ],
+   "fields": []
+  },
+  "operator_random": {
+   "opcode": "operator_random",
+   "category": "operators",
+   "shape": "reporter",
+   "label": "pick random (FROM) to (TO)",
+   "inputs": [
+    {
+     "name": "FROM",
+     "kind": "value",
+     "valueType": "number",
+     "shadow": {
+      "opcode": "math_number",
+      "field": "NUM",
+      "valueType": "number",
+      "value": "1"
+     }
+    },
+    {
+     "name": "TO",
+     "kind": "value",
+     "valueType": "number",
+     "shadow": {
+      "opcode": "math_number",
+      "field": "NUM",
+      "valueType": "number",
+      "value": "10"
+     }
+    }
+   ],
+   "fields": []
+  },
+  "operator_gt": {
+   "opcode": "operator_gt",
+   "category": "operators",
+   "shape": "boolean",
+   "label": "(OPERAND1) > (OPERAND2)",
+   "inputs": [
+    {
+     "name": "OPERAND1",
+     "kind": "value",
+     "valueType": "text",
+     "shadow": {
+      "opcode": "text",
+      "field": "TEXT",
+      "valueType": "text",
+      "value": ""
+     }
+    },
+    {
+     "name": "OPERAND2",
+     "kind": "value",
+     "valueType": "text",
+     "shadow": {
+      "opcode": "text",
+      "field": "TEXT",
+      "valueType": "text",
+      "value": "50"
+     }
+    }
+   ],
+   "fields": []
+  },
+  "operator_lt": {
+   "opcode": "operator_lt",
+   "category": "operators",
+   "shape": "boolean",
+   "label": "(OPERAND1) < (OPERAND2)",
+   "inputs": [
+    {
+     "name": "OPERAND1",
+     "kind": "value",
+     "valueType": "text",
+     "shadow": {
+      "opcode": "text",
+      "field": "TEXT",
+      "valueType": "text",
+      "value": ""
+     }
+    },
+    {
+     "name": "OPERAND2",
+     "kind": "value",
+     "valueType": "text",
+     "shadow": {
+      "opcode": "text",
+      "field": "TEXT",
+      "valueType": "text",
+      "value": "50"
+     }
+    }
+   ],
+   "fields": []
+  },
+  "operator_equals": {
+   "opcode": "operator_equals",
+   "category": "operators",
+   "shape": "boolean",
+   "label": "(OPERAND1) = (OPERAND2)",
+   "inputs": [
+    {
+     "name": "OPERAND1",
+     "kind": "value",
+     "valueType": "text",
+     "shadow": {
+      "opcode": "text",
+      "field": "TEXT",
+      "valueType": "text",
+      "value": ""
+     }
+    },
+    {
+     "name": "OPERAND2",
+     "kind": "value",
+     "valueType": "text",
+     "shadow": {
+      "opcode": "text",
+      "field": "TEXT",
+      "valueType": "text",
+      "value": "50"
+     }
+    }
+   ],
+   "fields": []
+  },
+  "operator_and": {
+   "opcode": "operator_and",
+   "category": "operators",
+   "shape": "boolean",
+   "label": "<OPERAND1> and <OPERAND2>",
+   "inputs": [
+    {
+     "name": "OPERAND1",
+     "kind": "value",
+     "valueType": "boolean",
+     "shadow": null
+    },
+    {
+     "name": "OPERAND2",
+     "kind": "value",
+     "valueType": "boolean",
+     "shadow": null
+    }
+   ],
+   "fields": []
+  },
+  "operator_or": {
+   "opcode": "operator_or",
+   "category": "operators",
+   "shape": "boolean",
+   "label": "<OPERAND1> or <OPERAND2>",
+   "inputs": [
+    {
+     "name": "OPERAND1",
+     "kind": "value",
+     "valueType": "boolean",
+     "shadow": null
+    },
+    {
+     "name": "OPERAND2",
+     "kind": "value",
+     "valueType": "boolean",
+     "shadow": null
+    }
+   ],
+   "fields": []
+  },
+  "operator_not": {
+   "opcode": "operator_not",
+   "category": "operators",
+   "shape": "boolean",
+   "label": "not <OPERAND>",
+   "inputs": [
+    {
+     "name": "OPERAND",
+     "kind": "value",
+     "valueType": "boolean",
+     "shadow": null
+    }
+   ],
+   "fields": []
+  },
+  "operator_join": {
+   "opcode": "operator_join",
+   "category": "operators",
+   "shape": "reporter",
+   "label": "join (STRING1) (STRING2)",
+   "inputs": [
+    {
+     "name": "STRING1",
+     "kind": "value",
+     "valueType": "text",
+     "shadow": {
+      "opcode": "text",
+      "field": "TEXT",
+      "valueType": "text",
+      "value": "apple "
+     }
+    },
+    {
+     "name": "STRING2",
+     "kind": "value",
+     "valueType": "text",
+     "shadow": {
+      "opcode": "text",
+      "field": "TEXT",
+      "valueType": "text",
+      "value": "banana"
+     }
+    }
+   ],
+   "fields": []
+  },
+  "operator_letter_of": {
+   "opcode": "operator_letter_of",
+   "category": "operators",
+   "shape": "reporter",
+   "label": "letter (LETTER) of (STRING)",
+   "inputs": [
+    {
+     "name": "LETTER",
+     "kind": "value",
+     "valueType": "whole_number",
+     "shadow": {
+      "opcode": "math_whole_number",
+      "field": "NUM",
+      "valueType": "whole_number",
+      "value": "1"
+     }
+    },
+    {
+     "name": "STRING",
+     "kind": "value",
+     "valueType": "text",
+     "shadow": {
+      "opcode": "text",
+      "field": "TEXT",
+      "valueType": "text",
+      "value": "apple"
+     }
+    }
+   ],
+   "fields": []
+  },
+  "operator_length": {
+   "opcode": "operator_length",
+   "category": "operators",
+   "shape": "reporter",
+   "label": "length of (STRING)",
+   "inputs": [
+    {
+     "name": "STRING",
+     "kind": "value",
+     "valueType": "text",
+     "shadow": {
+      "opcode": "text",
+      "field": "TEXT",
+      "valueType": "text",
+      "value": "apple"
+     }
+    }
+   ],
+   "fields": []
+  },
+  "operator_contains": {
+   "opcode": "operator_contains",
+   "category": "operators",
+   "shape": "boolean",
+   "label": "(STRING1) contains (STRING2) ?",
+   "inputs": [
+    {
+     "name": "STRING1",
+     "kind": "value",
+     "valueType": "text",
+     "shadow": {
+      "opcode": "text",
+      "field": "TEXT",
+      "valueType": "text",
+      "value": "apple"
+     }
+    },
+    {
+     "name": "STRING2",
+     "kind": "value",
+     "valueType": "text",
+     "shadow": {
+      "opcode": "text",
+      "field": "TEXT",
+      "valueType": "text",
+      "value": "a"
+     }
+    }
+   ],
+   "fields": []
+  },
+  "operator_mod": {
+   "opcode": "operator_mod",
+   "category": "operators",
+   "shape": "reporter",
+   "label": "(NUM1) mod (NUM2)",
+   "inputs": [
+    {
+     "name": "NUM1",
+     "kind": "value",
+     "valueType": "number",
+     "shadow": {
+      "opcode": "math_number",
+      "field": "NUM",
+      "valueType": "number",
+      "value": ""
+     }
+    },
+    {
+     "name": "NUM2",
+     "kind": "value",
+     "valueType": "number",
+     "shadow": {
+      "opcode": "math_number",
+      "field": "NUM",
+      "valueType": "number",
+      "value": ""
+     }
+    }
+   ],
+   "fields": []
+  },
+  "operator_round": {
+   "opcode": "operator_round",
+   "category": "operators",
+   "shape": "reporter",
+   "label": "round (NUM)",
+   "inputs": [
+    {
+     "name": "NUM",
+     "kind": "value",
+     "valueType": "number",
+     "shadow": {
+      "opcode": "math_number",
+      "field": "NUM",
+      "valueType": "number",
+      "value": ""
+     }
+    }
+   ],
+   "fields": []
+  },
+  "operator_mathop": {
+   "opcode": "operator_mathop",
+   "category": "operators",
+   "shape": "reporter",
+   "label": "[OPERATOR▾] of (NUM)",
+   "inputs": [
+    {
+     "name": "NUM",
+     "kind": "value",
+     "valueType": "number",
+     "shadow": {
+      "opcode": "math_number",
+      "field": "NUM",
+      "valueType": "number",
+      "value": ""
+     }
+    }
+   ],
+   "fields": [
+    {
+     "name": "OPERATOR",
+     "kind": "dropdown",
+     "options": [
+      {
+       "text": "abs",
+       "value": "abs"
+      },
+      {
+       "text": "floor",
+       "value": "floor"
+      },
+      {
+       "text": "ceiling",
+       "value": "ceiling"
+      },
+      {
+       "text": "sqrt",
+       "value": "sqrt"
+      },
+      {
+       "text": "sin",
+       "value": "sin"
+      },
+      {
+       "text": "cos",
+       "value": "cos"
+      },
+      {
+       "text": "tan",
+       "value": "tan"
+      },
+      {
+       "text": "asin",
+       "value": "asin"
+      },
+      {
+       "text": "acos",
+       "value": "acos"
+      },
+      {
+       "text": "atan",
+       "value": "atan"
+      },
+      {
+       "text": "ln",
+       "value": "ln"
+      },
+      {
+       "text": "log",
+       "value": "log"
+      },
+      {
+       "text": "e ^",
+       "value": "e ^"
+      },
+      {
+       "text": "10 ^",
+       "value": "10 ^"
+      }
+     ],
+     "value": "abs"
+    }
+   ]
+  },
+  "data_variable": {
+   "opcode": "data_variable",
+   "category": "variables",
+   "shape": "reporter",
+   "label": "[VARIABLE]",
+   "inputs": [],
+   "fields": [
+    {
+     "name": "VARIABLE",
+     "kind": "variable",
+     "variableType": ""
+    }
+   ]
+  },
+  "data_setvariableto": {
+   "opcode": "data_setvariableto",
+   "category": "variables",
+   "shape": "stack",
+   "label": "set [VARIABLE] to (VALUE)",
+   "inputs": [
+    {
+     "name": "VALUE",
+     "kind": "value",
+     "valueType": "text",
+     "shadow": {
+      "opcode": "text",
+      "field": "TEXT",
+      "valueType": "text",
+      "value": "0"
+     }
+    }
+   ],
+   "fields": [
+    {
+     "name": "VARIABLE",
+     "kind": "variable",
+     "variableType": ""
+    }
+   ]
+  },
+  "data_changevariableby": {
+   "opcode": "data_changevariableby",
+   "category": "variables",
+   "shape": "stack",
+   "label": "change [VARIABLE] by (VALUE)",
+   "inputs": [
+    {
+     "name": "VALUE",
+     "kind": "value",
+     "valueType": "number",
+     "shadow": {
+      "opcode": "math_number",
+      "field": "NUM",
+      "valueType": "number",
+      "value": "1"
+     }
+    }
+   ],
+   "fields": [
+    {
+     "name": "VARIABLE",
+     "kind": "variable",
+     "variableType": ""
+    }
+   ]
+  },
+  "data_showvariable": {
+   "opcode": "data_showvariable",
+   "category": "variables",
+   "shape": "stack",
+   "label": "show variable [VARIABLE]",
+   "inputs": [],
+   "fields": [
+    {
+     "name": "VARIABLE",
+     "kind": "variable",
+     "variableType": ""
+    }
+   ]
+  },
+  "data_hidevariable": {
+   "opcode": "data_hidevariable",
+   "category": "variables",
+   "shape": "stack",
+   "label": "hide variable [VARIABLE]",
+   "inputs": [],
+   "fields": [
+    {
+     "name": "VARIABLE",
+     "kind": "variable",
+     "variableType": ""
+    }
+   ]
+  },
+  "data_listcontents": {
+   "opcode": "data_listcontents",
+   "category": "variables",
+   "shape": "reporter",
+   "label": "[LIST]",
+   "inputs": [],
+   "fields": [
+    {
+     "name": "LIST",
+     "kind": "variable",
+     "variableType": ""
+    }
+   ]
+  },
+  "data_addtolist": {
+   "opcode": "data_addtolist",
+   "category": "variables",
+   "shape": "stack",
+   "label": "add (ITEM) to [LIST]",
+   "inputs": [
+    {
+     "name": "ITEM",
+     "kind": "value",
+     "valueType": "text",
+     "shadow": {
+      "opcode": "text",
+      "field": "TEXT",
+      "valueType": "text",
+      "value": "thing"
+     }
+    }
+   ],
+   "fields": [
+    {
+     "name": "LIST",
+     "kind": "variable",
+     "variableType": "list"
+    }
+   ]
+  },
+  "data_deleteoflist": {
+   "opcode": "data_deleteoflist",
+   "category": "variables",
+   "shape": "stack",
+   "label": "delete (INDEX) of [LIST]",
+   "inputs": [
+    {
+     "name": "INDEX",
+     "kind": "value",
+     "valueType": "integer",
+     "shadow": {
+      "opcode": "math_integer",
+      "field": "NUM",
+      "valueType": "integer",
+      "value": "1"
+     }
+    }
+   ],
+   "fields": [
+    {
+     "name": "LIST",
+     "kind": "variable",
+     "variableType": "list"
+    }
+   ]
+  },
+  "data_deletealloflist": {
+   "opcode": "data_deletealloflist",
+   "category": "variables",
+   "shape": "stack",
+   "label": "delete all of [LIST]",
+   "inputs": [],
+   "fields": [
+    {
+     "name": "LIST",
+     "kind": "variable",
+     "variableType": "list"
+    }
+   ]
+  },
+  "data_insertatlist": {
+   "opcode": "data_insertatlist",
+   "category": "variables",
+   "shape": "stack",
+   "label": "insert (ITEM) at (INDEX) of [LIST]",
+   "inputs": [
+    {
+     "name": "ITEM",
+     "kind": "value",
+     "valueType": "text",
+     "shadow": {
+      "opcode": "text",
+      "field": "TEXT",
+      "valueType": "text",
+      "value": "thing"
+     }
+    },
+    {
+     "name": "INDEX",
+     "kind": "value",
+     "valueType": "integer",
+     "shadow": {
+      "opcode": "math_integer",
+      "field": "NUM",
+      "valueType": "integer",
+      "value": "1"
+     }
+    }
+   ],
+   "fields": [
+    {
+     "name": "LIST",
+     "kind": "variable",
+     "variableType": "list"
+    }
+   ]
+  },
+  "data_replaceitemoflist": {
+   "opcode": "data_replaceitemoflist",
+   "category": "variables",
+   "shape": "stack",
+   "label": "replace item (INDEX) of [LIST] with (ITEM)",
+   "inputs": [
+    {
+     "name": "INDEX",
+     "kind": "value",
+     "valueType": "integer",
+     "shadow": {
+      "opcode": "math_integer",
+      "field": "NUM",
+      "valueType": "integer",
+      "value": "1"
+     }
+    },
+    {
+     "name": "ITEM",
+     "kind": "value",
+     "valueType": "text",
+     "shadow": {
+      "opcode": "text",
+      "field": "TEXT",
+      "valueType": "text",
+      "value": "thing"
+     }
+    }
+   ],
+   "fields": [
+    {
+     "name": "LIST",
+     "kind": "variable",
+     "variableType": "list"
+    }
+   ]
+  },
+  "data_itemoflist": {
+   "opcode": "data_itemoflist",
+   "category": "variables",
+   "shape": "reporter",
+   "label": "item (INDEX) of [LIST]",
+   "inputs": [
+    {
+     "name": "INDEX",
+     "kind": "value",
+     "valueType": "integer",
+     "shadow": {
+      "opcode": "math_integer",
+      "field": "NUM",
+      "valueType": "integer",
+      "value": "1"
+     }
+    }
+   ],
+   "fields": [
+    {
+     "name": "LIST",
+     "kind": "variable",
+     "variableType": "list"
+    }
+   ]
+  },
+  "data_itemnumoflist": {
+   "opcode": "data_itemnumoflist",
+   "category": "variables",
+   "shape": "reporter",
+   "label": "item # of (ITEM) in [LIST]",
+   "inputs": [
+    {
+     "name": "ITEM",
+     "kind": "value",
+     "valueType": "text",
+     "shadow": {
+      "opcode": "text",
+      "field": "TEXT",
+      "valueType": "text",
+      "value": "thing"
+     }
+    }
+   ],
+   "fields": [
+    {
+     "name": "LIST",
+     "kind": "variable",
+     "variableType": "list"
+    }
+   ]
+  },
+  "data_lengthoflist": {
+   "opcode": "data_lengthoflist",
+   "category": "variables",
+   "shape": "reporter",
+   "label": "length of [LIST]",
+   "inputs": [],
+   "fields": [
+    {
+     "name": "LIST",
+     "kind": "variable",
+     "variableType": "list"
+    }
+   ]
+  },
+  "data_listcontainsitem": {
+   "opcode": "data_listcontainsitem",
+   "category": "variables",
+   "shape": "boolean",
+   "label": "[LIST] contains (ITEM) ?",
+   "inputs": [
+    {
+     "name": "ITEM",
+     "kind": "value",
+     "valueType": "text",
+     "shadow": {
+      "opcode": "text",
+      "field": "TEXT",
+      "valueType": "text",
+      "value": "thing"
+     }
+    }
+   ],
+   "fields": [
+    {
+     "name": "LIST",
+     "kind": "variable",
+     "variableType": "list"
+    }
+   ]
+  },
+  "data_showlist": {
+   "opcode": "data_showlist",
+   "category": "variables",
+   "shape": "stack",
+   "label": "show list [LIST]",
+   "inputs": [],
+   "fields": [
+    {
+     "name": "LIST",
+     "kind": "variable",
+     "variableType": "list"
+    }
+   ]
+  },
+  "data_hidelist": {
+   "opcode": "data_hidelist",
+   "category": "variables",
+   "shape": "stack",
+   "label": "hide list [LIST]",
+   "inputs": [],
+   "fields": [
+    {
+     "name": "LIST",
+     "kind": "variable",
+     "variableType": "list"
+    }
+   ]
+  }
+ },
+ "categories": [
+  {
+   "id": "motion",
+   "name": "motion",
+   "count": 18,
+   "extension": false
+  },
+  {
+   "id": "looks",
+   "name": "looks",
+   "count": 20,
+   "extension": false
+  },
+  {
+   "id": "sound",
+   "name": "sound",
+   "count": 9,
+   "extension": false
+  },
+  {
+   "id": "events",
+   "name": "events",
+   "count": 8,
+   "extension": false
+  },
+  {
+   "id": "control",
+   "name": "control",
+   "count": 12,
+   "extension": false
+  },
+  {
+   "id": "sensing",
+   "name": "sensing",
+   "count": 19,
+   "extension": false
+  },
+  {
+   "id": "operators",
+   "name": "operators",
+   "count": 18,
+   "extension": false
+  },
+  {
+   "id": "variables",
+   "name": "variables",
+   "count": 17,
+   "extension": false
+  },
+  {
+   "id": "myBlocks",
+   "name": "myblocks",
+   "count": 0,
+   "extension": false
+  }
+ ],
+ "isStage": false
+}
