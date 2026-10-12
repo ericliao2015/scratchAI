@@ -34,6 +34,8 @@ jobs:
         NODE_ENV: production
         # GitHub Pages serves the site under /<repository name>/
         ROOT: /${{ github.event.repository.name }}/
+        # Cache the editor for offline use (src/playground/service-worker.js)
+        ENABLE_SERVICE_WORKER: '1'
     - run: touch build/.nojekyll
     - uses: actions/upload-pages-artifact@v3
       with:

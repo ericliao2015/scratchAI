@@ -1,7 +1,7 @@
 {
-  "short_name": "TurboWarp",
-  "name": "TurboWarp",
-  "description": "Mod of Scratch 3 with a compiler, dark mode, and more features.",
+  "short_name": "BlockAI",
+  "name": "BlockAI 積木 AI 編輯器",
+  "description": "以 TurboWarp 為基礎、加入 AI 產生積木與自動批改的積木程式編輯器。",
   "icons": [
     {
       "src": "images/192.png",

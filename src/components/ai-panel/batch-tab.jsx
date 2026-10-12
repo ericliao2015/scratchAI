@@ -88,10 +88,7 @@ const BatchTab = ({services}) => {
 
     const downloadReports = async () => {
         const sorted = projects.map(p => entries.find(e => e.fileName === p.fileName)).filter(Boolean);
-        const blob = await buildReportZip(sorted, {
-            title: template ? template.title : '批改結果',
-            describeEvidence: e => e.alias || ''
-        });
+        const blob = await buildReportZip(sorted, {title: template ? template.title : '批改結果'});
         downloadBlob(reportFileName(template ? template.title : '批改結果'), blob);
     };
 

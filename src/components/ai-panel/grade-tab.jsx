@@ -56,7 +56,8 @@ export const ResultView = ({result, services, teacher}) => {
                                                     key={i}
                                                     className={styles.chip}
                                                     onClick={() => services.highlightBlock(e.target, e.blockId)}
-                                                >{`${e.target} ${e.alias || '積木'}`}</button>
+                                                    title={e.text}
+                                                >{`${e.target}：${(e.text || e.alias || '積木').slice(0, 24)}`}</button>
                                             ))}
                                         </div>
                                     )}

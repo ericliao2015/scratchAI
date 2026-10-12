@@ -241,7 +241,27 @@ module.exports = [
                         context: 'src/examples'
                     }
                 ]
-            })
+            }),
+            // scratchAI: list every emitted file so the service worker can cache the
+            // whole editor for offline use.
+            {
+                apply (compiler) {
+                    compiler.hooks.emit.tap('ScratchAIPrecacheManifest', compilation => {
+                        const files = Object.keys(compilation.assets)
+                            .filter(file => !/\.map$|^microbit\/|precache-manifest\.json$|^sw\.js$/.test(file))
+                            .sort();
+                        const version = require('crypto').createHash('sha256')
+                            .update(files.join('\n'))
+                            .digest('hex')
+                            .slice(0, 16);
+                        const json = JSON.stringify({version, files});
+                        compilation.assets['precache-manifest.json'] = {
+                            source: () => json,
+                            size: () => json.length
+                        };
+                    });
+                }
+            }
         ])
     })
 ].concat(

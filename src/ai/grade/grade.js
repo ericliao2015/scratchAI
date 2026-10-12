@@ -2,7 +2,7 @@
  * Grade one project against a template: rule items locally, AI items with one model call.
  */
 import {extractJson} from '../json.js';
-import {projectToText, targetOfBlock} from '../project/serialize.js';
+import {ProjectSerializer, projectToText, targetOfBlock} from '../project/serialize.js';
 import {runRule} from './rules.js';
 import {normalizeTemplate} from './template.js';
 import {buildGradeSystemPrompt, buildGradeUserMessage, buildTemplateDraftPrompt} from '../prompts/grade.js';
@@ -33,7 +33,25 @@ export const gradeProject = async ({
     model, template: rawTemplate, client, catalog = null, language = '繁體中文', onBeforeFallback, signal
 }) => {
     const template = normalizeTemplate(rawTemplate);
-    const {text: projectText, ids} = projectToText(model, {catalog});
+    const {text: projectText, ids, aliases} = projectToText(model, {catalog});
+    // Readable text of a block for reports, e.g. "when green flag clicked" or its opcode.
+    const human = new ProjectSerializer({catalog, human: true});
+    const describe = (targetName, blockId) => {
+        const target = model.targets.find(t => t.name === targetName && t.blocks[blockId]) || targetOfBlock(model, blockId);
+        const block = target && target.blocks[blockId];
+        if (!block) return '';
+        try {
+            return human.callText(target.blocks, block).slice(0, 80);
+        } catch (e) {
+            return block.opcode;
+        }
+    };
+    const evidenceOf = (blockId, targetName) => ({
+        alias: aliases[blockId] || null,
+        blockId,
+        target: targetName,
+        text: describe(targetName, blockId)
+    });
     const items = [];
     let summary = '';
     let modelInfo = null;
@@ -46,7 +64,7 @@ export const gradeProject = async ({
             pass: outcome.pass,
             score: outcome.pass ? item.points : 0,
             reason: outcome.detail,
-            evidence: outcome.evidence.map(e => ({...e, alias: null}))
+            evidence: outcome.evidence.map(e => evidenceOf(e.blockId, e.target))
         });
     }
 
@@ -82,7 +100,7 @@ export const gradeProject = async ({
                     .map(alias => {
                         const blockId = ids[alias];
                         const target = blockId && targetOfBlock(model, blockId);
-                        return blockId && target ? {alias, blockId, target: target.name} : null;
+                        return blockId && target ? evidenceOf(blockId, target.name) : null;
                     })
                     .filter(Boolean)
             });

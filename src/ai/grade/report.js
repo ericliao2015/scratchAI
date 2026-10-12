@@ -28,7 +28,9 @@ const verdict = (item, scoring) => (scoring === 'passfail' ?
  * @param {object} entry {fileName, result, error, describeEvidence}
  * @returns {string} markdown report
  */
-export const toMarkdown = ({fileName, result, error, describeEvidence = e => e.alias || e.blockId}) => {
+const defaultEvidenceText = e => (e.text ? `「${e.text}」` : (e.alias || ''));
+
+export const toMarkdown = ({fileName, result, error, describeEvidence = defaultEvidenceText}) => {
     const {seat, name} = parseFileName(fileName);
     const lines = [`# ${result ? result.template.title : '批改結果'}`, ''];
     lines.push(`- 檔案：${fileName}`);
