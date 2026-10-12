@@ -92,7 +92,11 @@ export const saveSettings = settings => {
     }
 };
 
-/** Remove every saved key from this device. */
+/**
+ * Remove every saved key from this device.
+ * @param {object} settings current settings
+ * @returns {object} settings without keys
+ */
 export const forgetKeys = settings => {
     const cleared = stripKeys(settings);
     cleared.remember = false;

@@ -14,7 +14,7 @@ const MAX_REPAIRS = 2;
 
 const validateOps = ops => {
     const errors = [];
-    if (ops === undefined) return errors;
+    if (typeof ops === 'undefined') return errors;
     if (!Array.isArray(ops)) return [{path: 'ops', message: 'ops 必須是陣列'}];
     ops.forEach((op, i) => {
         if (!op || !OP_NAMES.includes(op.op)) {
@@ -62,16 +62,17 @@ export const generate = async ({
     for (let attempt = 0; attempt <= MAX_REPAIRS; attempt++) {
         onStatus(attempt === 0 ? 'AI 思考中…' : `修正中（第 ${attempt} 次）…`);
         response = await client.complete({system, messages, json: true, maxTokens: 16000}, {signal, onBeforeFallback});
-        usage.inputTokens += response.usage && response.usage.inputTokens || 0;
-        usage.outputTokens += response.usage && response.usage.outputTokens || 0;
+        usage.inputTokens += (response.usage && response.usage.inputTokens) || 0;
+        usage.outputTokens += (response.usage && response.usage.outputTokens) || 0;
         messages.push({role: 'assistant', content: response.text});
 
         let ir;
         try {
             ir = extractJson(response.text);
         } catch (e) {
-            lastErrors = [{path: '', message: response.truncated ?
-                '輸出太長被截斷了，請把程式寫得更精簡。' : '輸出不是有效的 JSON。'}];
+            lastErrors = [{path: '',
+                message: response.truncated ?
+                    '輸出太長被截斷了，請把程式寫得更精簡。' : '輸出不是有效的 JSON。'}];
             messages.push({role: 'user', content: buildRepairMessage(lastErrors)});
             continue;
         }

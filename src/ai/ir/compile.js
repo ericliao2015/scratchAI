@@ -119,14 +119,14 @@ class Compiler {
     makeShadow (shadowDesc, parentId, value) {
         const shadow = this.newBlock(shadowDesc.opcode, parentId, {shadow: true});
         if (shadowDesc.valueType === 'broadcast') {
-            const variable = this.scope.broadcast(String(value === undefined || value === null ? shadowDesc.value : value));
+            const variable = this.scope.broadcast(String(typeof value === 'undefined' || value === null ? shadowDesc.value : value));
             shadow.fields[shadowDesc.field] = {
                 name: shadowDesc.field, value: variable.name, id: variable.id, variableType: 'broadcast_msg'
             };
         } else if (shadowDesc.field) {
             shadow.fields[shadowDesc.field] = {
                 name: shadowDesc.field,
-                value: value === undefined || value === null ? String(shadowDesc.value) : value
+                value: typeof value === 'undefined' || value === null ? String(shadowDesc.value) : value
             };
         }
         return shadow;
@@ -135,7 +135,7 @@ class Compiler {
     compileValueInput (block, entry, inputDesc, spec, path) {
         const shadowDesc = inputDesc.shadow && inputDesc.shadow.field ? inputDesc.shadow : null;
         const name = inputDesc.name;
-        if (spec === undefined || spec === null) {
+        if (typeof spec === 'undefined' || spec === null) {
             if (shadowDesc) {
                 const shadow = this.makeShadow(shadowDesc, block.id);
                 block.inputs[name] = {name, block: shadow.id, shadow: shadow.id};
@@ -177,7 +177,7 @@ class Compiler {
         const name = fieldDesc.name;
         if (fieldDesc.kind === 'variable') {
             const type = fieldDesc.variableType || '';
-            if (spec === undefined || spec === null || spec === '') {
+            if (typeof spec === 'undefined' || spec === null || spec === '') {
                 this.error(path, `需要指定${type === 'list' ? '清單' : (type === 'broadcast_msg' ? '廣播訊息' : '變數')}名稱。`);
                 return;
             }
@@ -188,8 +188,8 @@ class Compiler {
             block.fields[name] = {name, value: variable.name, id: variable.id, variableType: type};
             return;
         }
-        if (spec === undefined || spec === null) {
-            block.fields[name] = {name, value: fieldDesc.value === undefined ? '' : String(fieldDesc.value)};
+        if (typeof spec === 'undefined' || spec === null) {
+            block.fields[name] = {name, value: typeof fieldDesc.value === 'undefined' ? '' : String(fieldDesc.value)};
             return;
         }
         if (!isLiteral(spec)) {
@@ -213,14 +213,14 @@ class Compiler {
     // ---- nodes --------------------------------------------------------------
 
     compileSpecialReporter (node, parentId, path, {boolean}) {
-        if (node.var !== undefined) {
+        if (typeof node.var !== 'undefined') {
             if (boolean) this.error(path, '六角形的條件輸入不能直接放變數，請用比較積木（例如 operator_equals）。');
             const variable = this.scope.useVariable(this.ctx.info, String(node.var), '');
             const block = this.newBlock('data_variable', parentId);
             block.fields.VARIABLE = {name: 'VARIABLE', value: variable.name, id: variable.id, variableType: ''};
             return block.id;
         }
-        if (node.list !== undefined) {
+        if (typeof node.list !== 'undefined') {
             const variable = this.scope.useVariable(this.ctx.info, String(node.list), 'list');
             const block = this.newBlock('data_listcontents', parentId);
             block.fields.LIST = {name: 'LIST', value: variable.name, id: variable.id, variableType: 'list'};
@@ -266,7 +266,7 @@ class Compiler {
             const isBool = types[index] === '%b';
             const argPath = `${path}.args[${index}]`;
             if (isBool) {
-                if (spec !== undefined && spec !== null) {
+                if (typeof spec !== 'undefined' && spec !== null) {
                     if (isLiteral(spec)) {
                         this.error(argPath, '布林參數只能放條件積木。');
                     } else {
@@ -277,8 +277,8 @@ class Compiler {
                 return;
             }
             const shadowDesc = {opcode: 'text', field: 'TEXT', valueType: 'text', value: ''};
-            if (spec === undefined || spec === null || isLiteral(spec)) {
-                const shadow = this.makeShadow(shadowDesc, block.id, spec === undefined || spec === null ? '' : String(spec));
+            if (typeof spec === 'undefined' || spec === null || isLiteral(spec)) {
+                const shadow = this.makeShadow(shadowDesc, block.id, typeof spec === 'undefined' || spec === null ? '' : String(spec));
                 block.inputs[argId] = {name: argId, block: shadow.id, shadow: shadow.id};
             } else {
                 const childId = this.compileNode(spec, block.id, argPath, {position: 'value', boolean: false});
@@ -301,14 +301,14 @@ class Compiler {
             this.error(path, `應該是一個積木物件，收到 ${describe(node)}`);
             return null;
         }
-        if (node.var !== undefined || node.list !== undefined || node.arg !== undefined) {
+        if (typeof node.var !== 'undefined' || typeof node.list !== 'undefined' || typeof node.arg !== 'undefined') {
             if (position === 'stack') {
                 this.error(path, '變數／清單／參數是圓形積木，不能單獨放在腳本裡。');
                 return null;
             }
             return this.compileSpecialReporter(node, parentId, path, {boolean});
         }
-        if (node.call !== undefined || node.opcode === 'procedures_call') {
+        if (typeof node.call !== 'undefined' || node.opcode === 'procedures_call') {
             if (position === 'value') {
                 this.error(path, '自訂積木是堆疊積木，不能放在輸入裡。');
                 return null;
@@ -345,7 +345,7 @@ class Compiler {
         const substacks = {...(node.substacks || {})};
         // Be forgiving about where the AI put things.
         for (const field of entry.fields) {
-            if (fields[field.name] === undefined && inputs[field.name] !== undefined) {
+            if (typeof fields[field.name] === 'undefined' && typeof inputs[field.name] !== 'undefined') {
                 fields[field.name] = inputs[field.name];
                 delete inputs[field.name];
             }
@@ -355,7 +355,7 @@ class Compiler {
                 substacks[input.name] = inputs[input.name];
                 delete inputs[input.name];
             }
-            if (input.kind === 'value' && inputs[input.name] === undefined && fields[input.name] !== undefined) {
+            if (input.kind === 'value' && typeof inputs[input.name] === 'undefined' && typeof fields[input.name] !== 'undefined') {
                 inputs[input.name] = fields[input.name];
                 delete fields[input.name];
             }
@@ -379,7 +379,7 @@ class Compiler {
         for (const inputDesc of entry.inputs) {
             if (inputDesc.kind === 'statement') {
                 const stack = substacks[inputDesc.name];
-                if (stack === undefined || stack === null) continue;
+                if (typeof stack === 'undefined' || stack === null) continue;
                 if (!Array.isArray(stack)) {
                     this.error(`${path}.substacks.${inputDesc.name}`, '這裡需要一串積木（陣列）。');
                     continue;
@@ -552,7 +552,9 @@ class Compiler {
         });
         (Array.isArray(spec.scripts) ? spec.scripts : []).forEach((script, i) => {
             const scriptPath = `${path}.scripts[${i}]`;
-            const nodes = Array.isArray(script) ? script : (script && Array.isArray(script.blocks) ? script.blocks : null);
+            let nodes = null;
+            if (Array.isArray(script)) nodes = script;
+            else if (script && Array.isArray(script.blocks)) nodes = script.blocks;
             if (!nodes) {
                 this.error(scriptPath, '每個腳本必須是積木陣列。');
                 return;
@@ -564,19 +566,23 @@ class Compiler {
         this.ctx = null;
     }
 
+    /**
+     * Number of stack blocks in a script including C-block contents, used to space scripts out.
+     * @param {string} firstId first block of the script
+     * @returns {number} block count
+     */
     countStack (firstId) {
+        const byId = new Map(this.ctx.blocks.map(b => [b.id, b]));
         let count = 0;
         const visit = id => {
-            let block = this.ctx.blocks.find(b => b.id === id);
-            while (block) {
-                count += 1;
-                for (const input of Object.values(block.inputs)) {
-                    const child = this.ctx.blocks.find(b => b.id === input.block);
-                    if (child && !child.shadow && child.parent === block.id && child.next !== undefined &&
-                        !this.isReporter(child)) visit(child.id);
-                }
-                block = block.next ? this.ctx.blocks.find(b => b.id === block.next) : null;
+            const block = byId.get(id);
+            if (!block) return;
+            count += 1;
+            for (const input of Object.values(block.inputs)) {
+                const child = byId.get(input.block);
+                if (child && !child.shadow && child.parent === block.id && !this.isReporter(child)) visit(child.id);
             }
+            if (block.next) visit(block.next);
         };
         visit(firstId);
         return count;
@@ -596,9 +602,11 @@ class Compiler {
                     this.error(`${path}.${key}[${i}]`, '需要名稱。');
                     return;
                 }
-                const value = type === 'list' ?
-                    (Array.isArray(variable.items) ? variable.items.map(String) : (Array.isArray(variable.value) ? variable.value.map(String) : [])) :
-                    (variable.value === undefined ? 0 : variable.value);
+                let value = typeof variable.value === 'undefined' ? 0 : variable.value;
+                if (type === 'list') {
+                    const items = Array.isArray(variable.items) ? variable.items : variable.value;
+                    value = Array.isArray(items) ? items.map(String) : [];
+                }
                 this.scope.declareVariable(info, String(variable.name), type, value);
             });
         }
@@ -631,7 +639,7 @@ class Compiler {
                 costumes: Array.isArray(sprite.costumes) ? sprite.costumes : [],
                 sounds: Array.isArray(sprite.sounds) ? sprite.sounds : [],
                 props: ['x', 'y', 'size', 'direction', 'visible', 'rotationStyle', 'draggable']
-                    .filter(key => sprite[key] !== undefined)
+                    .filter(key => typeof sprite[key] !== 'undefined')
                     .reduce((acc, key) => ({...acc, [key]: sprite[key]}), {})
             });
             return info;

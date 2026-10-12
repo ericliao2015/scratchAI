@@ -39,7 +39,7 @@ const GenerateTab = ({services}) => {
     const update = (id, patch) => setMessages(list => list.map(m => (m.id === id ? {...m, ...patch} : m)));
 
     const send = async text => {
-        const prompt = (text === undefined ? request : text).trim();
+        const prompt = (typeof text === 'undefined' ? request : text).trim();
         if (!prompt || busy) return;
         const catalog = services.getCatalog();
         if (!catalog) {

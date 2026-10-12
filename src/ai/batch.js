@@ -58,7 +58,7 @@ export const loadHeadlessVM = async (storage, data) => {
     try {
         await vm.loadProject(data);
     } catch (e) {
-        const message = String(e && e.message || e);
+        const message = String((e && e.message) || e);
         throw new Error(/extension/i.test(message) ?
             '專案使用了自訂擴充，無法在背景開啟' : `無法開啟專案：${message.slice(0, 120)}`);
     }
@@ -104,6 +104,8 @@ export const batchGrade = async ({
             const result = await gradeProject({model, template, client, catalog, language, onBeforeFallback, signal});
             entry = {fileName: project.fileName, result, error: null};
         } catch (e) {
+            // Each file runs on its own; this flag only stops files that have not started yet.
+            // eslint-disable-next-line require-atomic-updates
             if (e.kind === 'aborted' && !(signal && signal.aborted)) paused = true;
             entry = {fileName: project.fileName, result: null, error: e.message || String(e), paused};
         }
@@ -148,7 +150,32 @@ const applyAnswer = async (vm, answer, {catalog, libraries, aliases = {}}) => {
             .join('；'));
     }
     const summary = await applyPlan(vm, compiled.plan, {libraries});
-    return {summary, opResult, warnings: [...compiled.warnings, ...(opResult ? opResult.warnings : []), ...summary.warnings]};
+    const warnings = [...compiled.warnings, ...(opResult ? opResult.warnings : []), ...summary.warnings];
+    return {summary, opResult, warnings};
+};
+
+/**
+ * Ask the AI once for a change that works on every file (unified mode), using the
+ * first project as the example.
+ * @param {object} options options
+ * @returns {Promise<object>} generate() result of type 'program'
+ */
+export const prepareUnifiedAnswer = async ({
+    project, instruction, client, catalog, storage, promptOptions = {}, signal, onBeforeFallback
+}) => {
+    const vm = await loadHeadlessVM(storage, project.data);
+    const result = await generate({
+        client,
+        vm,
+        catalog,
+        request: instruction,
+        promptOptions: {...promptOptions, level: 'advanced'},
+        extraInstructions: BATCH_INSTRUCTIONS,
+        signal,
+        onBeforeFallback
+    });
+    if (result.type !== 'program') throw new Error(`AI 需要更多資訊：${result.question}`);
+    return result;
 };
 
 /**
@@ -191,16 +218,24 @@ export const batchModify = async ({
                 applied = await applyAnswer(vm, answer, {catalog, libraries});
             } else {
                 const result = await generate({
-                    client, vm, catalog, request: instruction, promptOptions: {...promptOptions, level: 'advanced'},
-                    signal, onBeforeFallback
+                    client,
+                    vm,
+                    catalog,
+                    request: instruction,
+                    promptOptions: {...promptOptions, level: 'advanced'},
+                    signal,
+                    onBeforeFallback
                 });
                 if (result.type !== 'program') throw new Error(`AI 需要更多資訊：${result.question}`);
                 applied = await applyAnswer(vm, result, {catalog, libraries, aliases: result.aliases});
             }
             const data = new Uint8Array(await vm.saveProjectSb3('arraybuffer'));
-            entry = {fileName: project.fileName, data, log: changeLog({fileName: project.fileName, ...applied}), error: null};
+            const log = changeLog({fileName: project.fileName, ...applied});
+            entry = {fileName: project.fileName, data, log, error: null};
         } catch (e) {
-            entry = {fileName: project.fileName, data: null, log: changeLog({fileName: project.fileName, error: e.message}),
+            entry = {fileName: project.fileName,
+                data: null,
+                log: changeLog({fileName: project.fileName, error: e.message}),
                 error: e.message || String(e)};
         }
         entries.push(entry);
@@ -210,34 +245,10 @@ export const batchModify = async ({
 };
 
 /**
- * Ask the AI once for a change that works on every file (unified mode), using the
- * first project as the example.
- * @param {object} options options
- * @returns {Promise<object>} generate() result of type 'program'
- */
-export const prepareUnifiedAnswer = async ({
-    project, instruction, client, catalog, storage, promptOptions = {}, signal, onBeforeFallback
-}) => {
-    const vm = await loadHeadlessVM(storage, project.data);
-    const result = await generate({
-        client,
-        vm,
-        catalog,
-        request: instruction,
-        promptOptions: {...promptOptions, level: 'advanced'},
-        extraInstructions: BATCH_INSTRUCTIONS,
-        signal,
-        onBeforeFallback
-    });
-    if (result.type !== 'program') throw new Error(`AI 需要更多資訊：${result.question}`);
-    return result;
-};
-
-/**
  * @param {Array<{fileName, data, log, error}>} entries batchModify results
  * @returns {Promise<Blob>} zip with modified projects, change logs and a CSV summary
  */
-export const buildModifyZip = async entries => {
+export const buildModifyZip = entries => {
     const zip = new JSZip();
     const csv = [['檔案', '狀態', '說明']];
     for (const entry of entries) {
@@ -248,7 +259,7 @@ export const buildModifyZip = async entries => {
     }
     const text = csv.map(row => row.map(cell => (/[",\n]/.test(cell) ? `"${cell.replace(/"/g, '""')}"` : cell)).join(','))
         .join('\r\n');
-    zip.file('changes.csv', `﻿${text}\r\n`);
+    zip.file('changes.csv', `\uFEFF${text}\r\n`);
     return zip.generateAsync({type: 'blob'});
 };
 

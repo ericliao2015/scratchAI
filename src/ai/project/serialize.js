@@ -106,7 +106,7 @@ export class ProjectSerializer {
         while (block) {
             if (block.opcode === 'procedures_definition') {
                 const proto = blocks[block.inputs.custom_block && block.inputs.custom_block.block];
-                const mutation = proto && proto.mutation || {};
+                const mutation = (proto && proto.mutation) || {};
                 let names = [];
                 try {
                     names = JSON.parse(mutation.argumentnames || '[]');
@@ -186,5 +186,10 @@ export const projectToText = (model, options) => {
     return {text, ids: serializer.ids, aliases: serializer.aliases};
 };
 
-/** Find which target a block id belongs to. */
+/**
+ * Find which target a block id belongs to.
+ * @param {object} model project model
+ * @param {string} blockId block id
+ * @returns {?object} target
+ */
 export const targetOfBlock = (model, blockId) => model.targets.find(t => t.blocks[blockId]) || null;

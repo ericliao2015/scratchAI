@@ -32,7 +32,11 @@ export class AIError extends Error {
     }
 }
 
-/** Errors after which trying a lower tier model makes sense. */
+/**
+ * Errors after which trying a lower tier model makes sense.
+ * @param {*} error error
+ * @returns {boolean} true if a lower tier may help
+ */
 export const isDowngradable = error => error instanceof AIError && (
     error.kind === ErrorKind.QUOTA ||
     error.kind === ErrorKind.UNAVAILABLE ||
@@ -40,7 +44,11 @@ export const isDowngradable = error => error instanceof AIError && (
     error.kind === ErrorKind.OVERLOADED
 );
 
-/** Errors worth retrying on the same model before moving on. */
+/**
+ * Errors worth retrying on the same model before moving on.
+ * @param {*} error error
+ * @returns {boolean} true if a retry may help
+ */
 export const isRetryable = error => error instanceof AIError && (
     error.kind === ErrorKind.RATE_LIMIT ||
     error.kind === ErrorKind.OVERLOADED

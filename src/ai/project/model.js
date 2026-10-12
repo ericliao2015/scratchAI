@@ -83,17 +83,25 @@ export const modelFromProjectJson = json => {
 export const getStage = model => model.targets.find(t => t.isStage);
 
 export const findTarget = (model, name) => {
-    if (name === undefined || name === null || name === '' || name === 'Stage' || name === '舞台') {
+    if (typeof name === 'undefined' || name === null || name === '' || name === 'Stage' || name === '舞台') {
         return getStage(model);
     }
     return model.targets.find(t => !t.isStage && t.name === name) || null;
 };
 
-/** Top level scripts of a target (excluding loose shadows and comments). */
+/**
+ * Top level scripts of a target (excluding loose shadows).
+ * @param {object} target model target
+ * @returns {Array<object>} top blocks
+ */
 export const topBlocks = target => Object.values(target.blocks)
     .filter(b => b.topLevel && !b.shadow);
 
-/** Procedure prototypes defined in a target. */
+/**
+ * Procedure prototypes defined in a target.
+ * @param {object} target model target
+ * @returns {Array<object>} {proccode, argumentids, argumentnames, argumentdefaults, warp}
+ */
 export const proceduresOf = target => Object.values(target.blocks)
     .filter(b => b.opcode === 'procedures_prototype' && b.mutation)
     .map(b => {
@@ -128,7 +136,11 @@ export const lookupVariable = (model, target, name, type = '') => {
     return stage.variables.find(v => v.name === name && v.type === type) || null;
 };
 
-/** Count blocks by opcode across the project (shadows excluded). */
+/**
+ * Count blocks by opcode across the project (shadows excluded).
+ * @param {object} model project model
+ * @returns {object} opcode to count
+ */
 export const opcodeCounts = model => {
     const counts = {};
     for (const target of model.targets) {

@@ -95,14 +95,14 @@ const addCostumes = async (vm, target, costumes) => {
 };
 
 const setProps = (target, props) => {
-    if (props.x !== undefined || props.y !== undefined) {
-        target.setXY(Number(props.x === undefined ? target.x : props.x), Number(props.y === undefined ? target.y : props.y));
+    if (typeof props.x !== 'undefined' || typeof props.y !== 'undefined') {
+        target.setXY(Number(typeof props.x === 'undefined' ? target.x : props.x), Number(typeof props.y === 'undefined' ? target.y : props.y));
     }
-    if (props.size !== undefined) target.setSize(Number(props.size));
-    if (props.direction !== undefined) target.setDirection(Number(props.direction));
-    if (props.visible !== undefined) target.setVisible(!!props.visible);
-    if (props.rotationStyle !== undefined) target.setRotationStyle(String(props.rotationStyle));
-    if (props.draggable !== undefined) target.setDraggable(!!props.draggable);
+    if (typeof props.size !== 'undefined') target.setSize(Number(props.size));
+    if (typeof props.direction !== 'undefined') target.setDirection(Number(props.direction));
+    if (typeof props.visible !== 'undefined') target.setVisible(!!props.visible);
+    if (typeof props.rotationStyle !== 'undefined') target.setRotationStyle(String(props.rotationStyle));
+    if (typeof props.draggable !== 'undefined') target.setDraggable(!!props.draggable);
 };
 
 const rightmostScriptX = target => {

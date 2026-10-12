@@ -10,7 +10,7 @@ const BROADCAST_SENDERS = ['event_broadcast', 'event_broadcastandwait'];
 const asList = value => (Array.isArray(value) ? value : [value]);
 
 const targetsFor = (model, check) => {
-    if (check.sprite === undefined) return model.targets;
+    if (typeof check.sprite === 'undefined') return model.targets;
     const target = findTarget(model, check.sprite);
     return target ? [target] : [];
 };
@@ -19,7 +19,11 @@ const blocksOf = targets => targets.flatMap(t => Object.values(t.blocks)
     .filter(b => !b.shadow)
     .map(b => ({block: b, target: t})));
 
-/** Only count blocks that are part of a script with a hat (loose blocks never run). */
+/**
+ * Blocks that are part of a script (loose blocks without a hat never run).
+ * @param {Array} targets targets to search
+ * @returns {Array<{block, target}>} blocks
+ */
 const reachableBlocks = targets => {
     const result = [];
     for (const target of targets) {
@@ -183,7 +187,7 @@ export const RULE_DESCRIPTIONS = {
 export const runRule = (model, check) => {
     const name = Object.keys(check || {}).find(key => RULES[key]);
     if (!name) return {pass: false, detail: `不認得的規則：${JSON.stringify(check)}`, evidence: [], invalid: true};
-    if (check.sprite !== undefined && !findTarget(model, check.sprite)) {
+    if (typeof check.sprite !== 'undefined' && !findTarget(model, check.sprite)) {
         return {pass: false, detail: `找不到角色「${check.sprite}」`, evidence: []};
     }
     return RULES[name](model, check);

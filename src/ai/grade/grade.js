@@ -37,7 +37,8 @@ export const gradeProject = async ({
     // Readable text of a block for reports, e.g. "when green flag clicked" or its opcode.
     const human = new ProjectSerializer({catalog, human: true});
     const describe = (targetName, blockId) => {
-        const target = model.targets.find(t => t.name === targetName && t.blocks[blockId]) || targetOfBlock(model, blockId);
+        const target = model.targets.find(t => t.name === targetName && t.blocks[blockId]) ||
+            targetOfBlock(model, blockId);
         const block = target && target.blocks[blockId];
         if (!block) return '';
         try {
@@ -114,7 +115,12 @@ export const gradeProject = async ({
     const max = items.reduce((n, i) => n + i.points, 0);
     const threshold = template.passThreshold === null ? items.length : template.passThreshold;
     return {
-        template: {id: template.id, title: template.title, scoring: template.scoring, studentView: template.studentView},
+        template: {
+            id: template.id,
+            title: template.title,
+            scoring: template.scoring,
+            studentView: template.studentView
+        },
         items,
         passedCount,
         itemCount: items.length,

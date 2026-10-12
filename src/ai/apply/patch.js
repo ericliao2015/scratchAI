@@ -20,7 +20,7 @@ export const OP_NAMES = [
 class PatchError extends Error {}
 
 const findTarget = (vm, name) => {
-    if (name === undefined || name === null || name === 'Stage' || name === '舞台') {
+    if (typeof name === 'undefined' || name === null || name === 'Stage' || name === '舞台') {
         return vm.runtime.getTargetForStage();
     }
     const target = vm.runtime.targets.find(t => t.isOriginal && !t.isStage && t.getName() === name);
@@ -30,10 +30,10 @@ const findTarget = (vm, name) => {
 
 const literalOf = (blocks, input) => {
     const shadow = input && input.block && blocks[input.block];
-    if (!shadow || !shadow.shadow) return undefined;
+    if (!shadow || !shadow.shadow) return null;
     const primitive = PRIMITIVE_SHADOWS[shadow.opcode];
     const field = primitive ? shadow.fields[primitive[0]] : Object.values(shadow.fields)[0];
-    return field ? field.value : undefined;
+    return field ? field.value : null;
 };
 
 const matches = (blocks, block, matcher) => {
@@ -86,7 +86,12 @@ const lastOf = (blocks, id) => {
     return block;
 };
 
-/** Where a block is attached: as next of a block, inside an input, or top level. */
+/**
+ * Where a block is attached: as next of a block, inside an input, or top level.
+ * @param {object} blocks block map
+ * @param {object} block block
+ * @returns {object} {kind, parent?, input?}
+ */
 const attachment = (blocks, block) => {
     if (!block.parent) return {kind: 'top'};
     const parent = blocks[block.parent];
@@ -281,7 +286,7 @@ const OPS = {
             const block = target.blocks._blocks[id];
             const field = block.fields[op.field];
             if (!field) throw new PatchError(`${block.opcode} 沒有欄位 ${op.field}`);
-            if (field.variableType !== undefined && field.id) {
+            if (typeof field.variableType !== 'undefined' && field.id) {
                 throw new PatchError('變數欄位請用 renameVariable 或 replaceBlock 修改');
             }
             field.value = String(op.value);
@@ -321,13 +326,13 @@ const OPS = {
 
     setProperty (ctx, op) {
         const target = findTarget(ctx.vm, op.sprite);
-        if (op.x !== undefined || op.y !== undefined) {
-            target.setXY(Number(op.x === undefined ? target.x : op.x), Number(op.y === undefined ? target.y : op.y));
+        if (typeof op.x !== 'undefined' || typeof op.y !== 'undefined') {
+            target.setXY(Number(typeof op.x === 'undefined' ? target.x : op.x), Number(typeof op.y === 'undefined' ? target.y : op.y));
         }
-        if (op.size !== undefined) target.setSize(Number(op.size));
-        if (op.direction !== undefined) target.setDirection(Number(op.direction));
-        if (op.visible !== undefined) target.setVisible(!!op.visible);
-        if (op.rotationStyle !== undefined) target.setRotationStyle(String(op.rotationStyle));
+        if (typeof op.size !== 'undefined') target.setSize(Number(op.size));
+        if (typeof op.direction !== 'undefined') target.setDirection(Number(op.direction));
+        if (typeof op.visible !== 'undefined') target.setVisible(!!op.visible);
+        if (typeof op.rotationStyle !== 'undefined') target.setRotationStyle(String(op.rotationStyle));
     }
 };
 

@@ -34,7 +34,7 @@ export const fetchJson = async (url, options = {}) => {
 
     let response;
     try {
-        response = await fetchImpl(url, {...init, signal: controller ? controller.signal : undefined});
+        response = await fetchImpl(url, controller ? {...init, signal: controller.signal} : init);
     } catch (e) {
         if (signal && signal.aborted) throw new AIError(ErrorKind.ABORTED, 'Cancelled', {provider, model});
         if (timedOut) throw new AIError(ErrorKind.OVERLOADED, 'Request timed out', {provider, model});
@@ -59,7 +59,7 @@ export const fetchJson = async (url, options = {}) => {
     }
 
     if (!response.ok) {
-        const err = (body && (body.error || body[0] && body[0].error)) || {};
+        const err = (body && (body.error || (body[0] && body[0].error))) || {};
         const message = (typeof err === 'string' ? err : err.message) || text.slice(0, 500) ||
             `HTTP ${response.status}`;
         const code = typeof err === 'object' ? `${err.type || ''} ${err.code || ''} ${err.status || ''}` : '';

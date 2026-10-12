@@ -26,7 +26,7 @@ export const normalizeTemplate = json => {
         type: item.type === 'rule' ? 'rule' : 'ai',
         desc: String(item.desc || item.description || ''),
         points: Number.isFinite(Number(item.points)) ? Number(item.points) : 10,
-        check: item.type === 'rule' ? (item.check || {}) : undefined
+        check: item.type === 'rule' ? (item.check || {}) : null
     }));
     const ids = new Set();
     items.forEach((item, index) => {

@@ -102,7 +102,7 @@ export const removeBackground = (image, {tolerance = 48} = {}) => {
         const i = p * 4;
         const distance = colorDistance(data, i, color);
         if (distance < tolerance * 2) {
-            data[i + 3] = Math.round(data[i + 3] * Math.min(1, (distance - tolerance) / tolerance + 0.35));
+            data[i + 3] = Math.round(data[i + 3] * Math.min(1, ((distance - tolerance) / tolerance) + 0.35));
         }
     }
     return {removed, color};
@@ -198,7 +198,11 @@ const flipCanvas = canvas => {
     return out;
 };
 
-/** Cover-crop to the stage's 4:3 shape at twice the stage resolution. */
+/**
+ * Cover-crop to the stage's 4:3 shape at twice the stage resolution.
+ * @param {HTMLCanvasElement} canvas image
+ * @returns {HTMLCanvasElement} backdrop
+ */
 const fitBackdrop = canvas => {
     const width = STAGE_WIDTH * 2;
     const height = STAGE_HEIGHT * 2;
@@ -227,14 +231,18 @@ const vectorize = async (canvas, colors) => {
     return new TextEncoder().encode(svg);
 };
 
-/** Reduce colors so the PNG compresses better (posterize). */
+/**
+ * Reduce colors so the PNG compresses better (posterize).
+ * @param {HTMLCanvasElement} canvas image, changed in place
+ * @param {number} levels levels per channel
+ */
 const posterize = (canvas, levels = 32) => {
     const ctx = canvas.getContext('2d');
     const image = ctx.getImageData(0, 0, canvas.width, canvas.height);
     const step = 256 / levels;
     for (let i = 0; i < image.data.length; i += 4) {
         for (let c = 0; c < 3; c++) {
-            image.data[i + c] = Math.min(255, Math.round(Math.floor(image.data[i + c] / step) * step + (step / 2)));
+            image.data[i + c] = Math.min(255, Math.round((Math.floor(image.data[i + c] / step) * step) + (step / 2)));
         }
     }
     ctx.putImageData(image, 0, 0);
@@ -321,5 +329,9 @@ export const processImage = async (bytes, options = {}) => {
     return results;
 };
 
-/** Size string for the image API. */
+/**
+ * Size string for the image API.
+ * @param {string} kind 'sprite' or 'backdrop'
+ * @returns {string} size such as 1024x1024
+ */
 export const imageSize = kind => (kind === 'backdrop' ? '1024x768' : '1024x1024');

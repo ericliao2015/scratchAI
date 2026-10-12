@@ -4,7 +4,7 @@
 import JSZip from '@turbowarp/jszip';
 
 const csvCell = value => {
-    const text = value === null || value === undefined ? '' : String(value);
+    const text = value === null || typeof value === 'undefined' ? '' : String(value);
     return /[",\n\r]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
 };
 
@@ -24,12 +24,15 @@ const verdict = (item, scoring) => (scoring === 'passfail' ?
     (item.pass ? '✅ 通過' : '❌ 未通過') :
     `${item.pass ? '✅' : '❌'} ${item.score}/${item.points}`);
 
-/**
- * @param {object} entry {fileName, result, error, describeEvidence}
- * @returns {string} markdown report
- */
 const defaultEvidenceText = e => (e.text ? `「${e.text}」` : (e.alias || ''));
 
+/**
+ * @param {object} entry {fileName, result, error, describeEvidence}
+ * @param {string} entry.fileName file name
+ * @param {?object} entry.result grading result
+ * @param {?string} entry.error error message
+ * @returns {string} markdown report
+ */
 export const toMarkdown = ({fileName, result, error, describeEvidence = defaultEvidenceText}) => {
     const {seat, name} = parseFileName(fileName);
     const lines = [`# ${result ? result.template.title : '批改結果'}`, ''];
@@ -90,7 +93,7 @@ export const toCsv = entries => {
             ''
         ];
     });
-    return `﻿${[header, ...rows].map(row => row.map(csvCell).join(','))
+    return `\uFEFF${[header, ...rows].map(row => row.map(csvCell).join(','))
         .join('\r\n')}\r\n`;
 };
 
@@ -99,7 +102,7 @@ export const toCsv = entries => {
  * @param {object} options {title, describeEvidence}
  * @returns {Promise<Blob>} zip with one .md per file, summary.csv and results.json
  */
-export const buildReportZip = async (entries, {title = '批改結果', describeEvidence} = {}) => {
+export const buildReportZip = (entries, {title = '批改結果', describeEvidence} = {}) => {
     const zip = new JSZip();
     const folder = zip.folder('reports');
     const used = new Set();

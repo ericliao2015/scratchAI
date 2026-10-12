@@ -132,9 +132,12 @@ export const createAIClient = ({
                     });
                 }
                 if (lastError.kind !== ErrorKind.RATE_LIMIT && lastError.kind !== ErrorKind.OVERLOADED) {
+                    // Concurrent requests may both move the position; either value is a valid model.
+                    // eslint-disable-next-line require-atomic-updates
                     state.position = nextIndex;
                 }
                 onEvent({type: 'fallback', from: entry, to: next, reason: lastError.kind, error: lastError});
+                // eslint-disable-next-line require-atomic-updates
                 i = nextIndex - 1;
             }
             throw lastError;

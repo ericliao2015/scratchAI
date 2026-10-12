@@ -43,7 +43,8 @@ grading criteria for a Scratch 3 assignment into a grading template. Return ONE 
 }
 Use "rule" items whenever a criterion can be checked mechanically, with exactly one of these checks
 (add "sprite": "name" to limit a check to one sprite):
-${Object.entries(RULE_DESCRIPTIONS).map(([key, text]) => `- {"${key}": ...} ${text}`).join('\n')}
+${Object.entries(RULE_DESCRIPTIONS).map(([key, text]) => `- {"${key}": ...} ${text}`)
+        .join('\n')}
 Examples: {"usesOpcode": "event_whenflagclicked"}, {"usesOpcode": ["control_forever", "control_repeat"]},
 {"variableExists": "score"}, {"spriteCount": {"min": 2}}, {"broadcastUsed": true}, {"usesExtension": "pen"}.
 Use "ai" items for anything about behaviour or logic (e.g. "score increases when the cat touches the apple").

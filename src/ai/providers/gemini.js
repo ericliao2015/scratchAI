@@ -59,9 +59,10 @@ export default {
             classify
         });
         const candidate = body.candidates && body.candidates[0];
-        const parts = candidate && candidate.content && candidate.content.parts || [];
+        const parts = (candidate && candidate.content && candidate.content.parts) || [];
         return {
-            text: parts.filter(p => !p.thought).map(p => p.text || '').join(''),
+            text: parts.filter(p => !p.thought).map(p => p.text || '')
+                .join(''),
             truncated: candidate && candidate.finishReason === 'MAX_TOKENS',
             refused: candidate && (candidate.finishReason === 'SAFETY' || candidate.finishReason === 'PROHIBITED_CONTENT'),
             usage: {

@@ -142,7 +142,8 @@ class AIPanelHost extends React.Component {
 
     highlightBlock (targetName, blockId) {
         const vm = this.props.vm;
-        const target = vm.runtime.targets.find(t => t.isOriginal && (t.isStage ? targetName === 'Stage' : t.getName() === targetName));
+        const target = vm.runtime.targets.find(t => t.isOriginal &&
+            (t.isStage ? targetName === 'Stage' : t.getName() === targetName));
         if (!target) return;
         if (!vm.editingTarget || vm.editingTarget.id !== target.id) vm.setEditingTarget(target.id);
         setTimeout(() => {
@@ -213,7 +214,7 @@ class AIPanelHost extends React.Component {
             addCostumes: (costumes, options) => host.addCostumes(costumes, options),
             cleanUpWorkspace: () => host.cleanUpWorkspace(),
             highlightBlock: (target, id) => host.highlightBlock(target, id),
-            getProjectTitle: () => host.props.projectTitle,
+            getProjectTitle: () => this.props.projectTitle,
             testImageProvider: () => host.testImageProvider(),
             notice: this.state.notice
         };

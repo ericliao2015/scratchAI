@@ -27,8 +27,8 @@ export const getTier = (providerId, model) => {
  * Models of one tier, limited to what the provider says is available (when known).
  * @param {string} providerId provider
  * @param {string} tier tier name
- * @param {?string[]} available model ids from listModels(), or null if unknown
- * @returns {string[]} model ids
+ * @param {?Array<string>} available model ids from listModels(), or null if unknown
+ * @returns {Array<string>} model ids
  */
 export const tierModels = (providerId, tier, available) => {
     const models = (TIERS[providerId] && TIERS[providerId][tier]) || [];
@@ -39,8 +39,8 @@ export const tierModels = (providerId, tier, available) => {
 /**
  * Group a provider's models by tier for the model picker.
  * @param {string} providerId provider
- * @param {?string[]} available model ids from listModels()
- * @returns {Array<{tier: ?string, models: string[]}>} groups, ranked tiers first
+ * @param {?Array<string>} available model ids from listModels()
+ * @returns {Array<object>} groups {tier, models}, ranked tiers first
  */
 export const groupModels = (providerId, available) => {
     const groups = TIER_ORDER.map(tier => ({tier, models: tierModels(providerId, tier, available)}));
@@ -51,7 +51,12 @@ export const groupModels = (providerId, available) => {
     return groups.filter(g => g.models.length > 0);
 };
 
-/** Default model for a provider: the first available high tier model. */
+/**
+ * Default model for a provider: the first available model of the highest tier.
+ * @param {string} providerId provider
+ * @param {?Array<string>} available model ids from listModels()
+ * @returns {string} model id
+ */
 export const defaultModel = (providerId, available) => {
     for (const tier of TIER_ORDER) {
         const models = tierModels(providerId, tier, available);

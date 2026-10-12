@@ -61,7 +61,8 @@ export const generateCostumes = async ({
         } catch (e) {
             if (e.kind === ErrorKind.AUTH || e.kind === ErrorKind.QUOTA || e.kind === ErrorKind.ABORTED) throw e;
             // Image editing is not available: draw the pose from the text description instead.
-            [bytes] = await provider.generate({prompt: buildImagePrompt({description, kind, style, pose}), size, signal});
+            const prompt = buildImagePrompt({description, kind, style, pose});
+            [bytes] = await provider.generate({prompt, size, signal});
         }
         const processed = await processImage(bytes, {...processing, kind, flip: false});
         results.push(...processed.map(c => ({...c, suffix: `-${i + 1}`, source: bytes})));

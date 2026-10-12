@@ -42,7 +42,7 @@ export class Scope {
      * @returns {object} target info (created on first use)
      */
     target (name) {
-        if (name === null || name === undefined || name === 'Stage' || name === '舞台' || name === STAGE_KEY) {
+        if (name === null || typeof name === 'undefined' || name === 'Stage' || name === '舞台' || name === STAGE_KEY) {
             return this.stage;
         }
         if (!this.targets.has(name)) {
@@ -80,7 +80,7 @@ export class Scope {
             id: uid(),
             name,
             type,
-            value: value === undefined ? (type === 'list' ? [] : 0) : value
+            value: typeof value === 'undefined' ? (type === 'list' ? [] : 0) : value
         };
         info.variables.push(variable);
         this.newVariables.push({target: info.key, ...variable});

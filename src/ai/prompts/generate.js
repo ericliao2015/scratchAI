@@ -161,4 +161,5 @@ Refer to sprites by name. Do not use "ask a question" responses.`;
  */
 export const buildRepairMessage = errors => `Your JSON could not be used. Fix these problems and return the
 COMPLETE corrected JSON object (not just the changed part):
-${errors.slice(0, 30).map(e => `- ${e.path ? `${e.path}: ` : ''}${e.message}`).join('\n')}`;
+${errors.slice(0, 30).map(e => `- ${e.path ? `${e.path}: ` : ''}${e.message}`)
+        .join('\n')}`;
