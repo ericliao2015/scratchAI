@@ -57,6 +57,7 @@ export const hashPin = async pin => {
  * @property {object} models allowed models per provider (empty = all)
  * @property {string} level default level 'simple' | 'advanced'
  * @property {number} imageDailyLimit images per student per day (0 = unlimited)
+ * @property {number} audioDailyLimit AI sounds per student per day (0 = unlimited; built-in synth is free)
  * @property {Array} templates grading templates students can self-check with
  */
 
@@ -76,6 +77,7 @@ export const defaultClassConfig = () => ({
     models: {},
     level: 'simple',
     imageDailyLimit: 0,
+    audioDailyLimit: 0,
     templates: [],
     missionPacks: []
 });
@@ -149,13 +151,10 @@ export const loadClassConfigFromUrl = async () => {
     return normalizeClassConfig(await response.json());
 };
 
-const IMAGE_COUNT_KEY = 'scratchai:image-count';
-
-/** Count generated images per day, for the class daily limit. */
-export const imageQuota = {
+const dailyCounter = key => ({
     used () {
         try {
-            const saved = JSON.parse(window.localStorage.getItem(IMAGE_COUNT_KEY) || '{}');
+            const saved = JSON.parse(window.localStorage.getItem(key) || '{}');
             return saved.day === new Date().toISOString()
                 .slice(0, 10) ? saved.count : 0;
         } catch (e) {
@@ -166,9 +165,15 @@ export const imageQuota = {
         const day = new Date().toISOString()
             .slice(0, 10);
         try {
-            window.localStorage.setItem(IMAGE_COUNT_KEY, JSON.stringify({day, count: imageQuota.used() + 1}));
+            window.localStorage.setItem(key, JSON.stringify({day, count: this.used() + 1}));
         } catch (e) {
             // ignore
         }
     }
-};
+});
+
+/** Count generated images per day, for the class daily limit. */
+export const imageQuota = dailyCounter('scratchai:image-count');
+
+/** Count AI-generated sounds per day, for the class daily limit. */
+export const audioQuota = dailyCounter('scratchai:audio-count');

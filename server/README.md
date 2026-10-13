@@ -3,7 +3,7 @@
 一個小型伺服器，替全班保管 AI KEY，並提供：
 
 - **班級代碼**：學生在「設定 → 平台：班級閘道」輸入網址、班級代碼與座號即可使用 AI，不需要自己的 KEY。
-- **額度**：每人每天的次數／token 上限、全班每天 token 上限；超過時回傳「額度用完」。
+- **額度**：每人每天的次數／token 上限、全班每天 token 上限、每人每天 AI 音效／音樂次數；超過時回傳「額度用完」。
 - **備援**：每個班級可以設定多個模型，依序嘗試（上一個額度用完或不能用時換下一個）。
 - **用量統計**：老師在「班級」分頁看每位學生近 7 天的用量。
 - **繳交作業**：學生在「自我檢查」按「繳交給老師」，老師在「班級」分頁下載或直接送到批次批改。
@@ -25,6 +25,7 @@ node server/node.js
 | --- | --- |
 | `ADMIN_TOKEN` | 老師管理密碼（「班級」分頁使用）。不設定就不能管理。 |
 | `ANTHROPIC_KEY` / `OPENAI_KEY` / `GEMINI_KEY` | 上游 AI 服務的 KEY，有設定的平台才能用。 |
+| `ELEVENLABS_KEY` | AI 音效與音樂（ElevenLabs）。有 `GEMINI_KEY` 時音樂優先用 Google Lyria。 |
 | `COMPATIBLE_URL` / `COMPATIBLE_KEY` | OpenAI 相容服務（例如校內的 Ollama：`http://127.0.0.1:11434/v1`）。 |
 | `ALLOWED_ORIGINS` | 允許的網站，逗號分隔；`*` 表示全部。 |
 | `PORT` | 預設 8787。 |
@@ -61,6 +62,7 @@ npx wrangler deploy
 | GET | `/v1/whoami` | 學生身分與班級 |
 | GET | `/v1/models` | 班級可用模型 |
 | POST | `/v1/complete` | `{model?, system, messages, json, maxTokens}` → `{text, usage, model}` |
+| POST | `/v1/audio` | `{kind: "sfx" \| "music", prompt, durationSeconds?, loop?}` → `{format, mimeType \| rate, data(base64)}`；班級 `limits.audioPerDay` 限制每人每天次數 |
 | GET | `/v1/usage` | 今日用量 |
 | POST/GET | `/v1/submissions` | 繳交 `{assignment, fileName, project(base64), report, summary}`／自己的繳交清單 |
 | GET/PUT/DELETE | `/v1/projects[/名稱]` | 雲端專案 |

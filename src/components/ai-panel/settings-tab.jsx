@@ -10,6 +10,7 @@ import {STRATEGIES, forgetKeys} from '../../ai/settings.js';
 import {hashPin, normalizeClassConfig} from '../../ai/mode.js';
 import {describeError} from './errors.js';
 import CloudProjects from './cloud-projects.jsx';
+import {AUDIO_PROVIDERS} from '../../ai/audio/services.js';
 import {t} from './i18n.js';
 
 const ModelPicker = ({providerId, config, onChange}) => {
@@ -66,6 +67,9 @@ const SettingsTab = ({services}) => {
     const [pin, setPin] = useState('');
     const [localProgress, setLocalProgress] = useState(null);
     useEffect(() => onWebLLMProgress(setLocalProgress), []);
+
+    const audio = settings.audio || {provider: 'synth', elevenlabsKey: '', geminiKey: ''};
+    const setAudio = patch => updateSettings({...settings, audio: {...audio, ...patch}});
 
     const setConfig = patch => updateSettings({
         ...settings,
@@ -392,6 +396,59 @@ const SettingsTab = ({services}) => {
                     disabled={!!busy || !settings.image.apiKey}
                     onClick={testImage}
                 >{busy === 'image' ? t('測試中…') : t('測試生圖')}</button>
+            </div>
+
+            <div className={styles.section}>
+                <h3 className={styles.sectionTitle}>{t('AI 音效／音樂')}</h3>
+                <label className={styles.label}>{t('聲音來源')}</label>
+                <select
+                    className={styles.select}
+                    value={audio.provider}
+                    onChange={e => setAudio({provider: e.target.value})}
+                >
+                    {Object.entries(AUDIO_PROVIDERS).map(([id, p]) => (<option
+                        key={id}
+                        value={id}
+                    >{t(p.label)}</option>))}
+                </select>
+                {audio.provider === 'elevenlabs' && (
+                    <React.Fragment>
+                        <label className={styles.label}>{'ElevenLabs API KEY'}</label>
+                        <input
+                            className={styles.input}
+                            type="password"
+                            autoComplete="off"
+                            value={audio.elevenlabsKey}
+                            onChange={e => setAudio({elevenlabsKey: e.target.value.trim()})}
+                        />
+                        <p className={styles.hint}>
+                            {t('取得 KEY：')}
+                            <a
+                                href="https://elevenlabs.io/app/settings/api-keys"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >{'elevenlabs.io'}</a>
+                            {t('。免費方案產生的聲音不能商用。')}
+                        </p>
+                    </React.Fragment>
+                )}
+                {audio.provider === 'lyria' && (
+                    <React.Fragment>
+                        <label className={styles.label}>{t('Gemini API KEY（選填）')}</label>
+                        <input
+                            className={styles.input}
+                            type="password"
+                            autoComplete="off"
+                            value={audio.geminiKey}
+                            placeholder={t('留空則使用上方 Google Gemini 平台的 KEY')}
+                            onChange={e => setAudio({geminiKey: e.target.value.trim()})}
+                        />
+                        <p className={styles.hint}>{t('Lyria 每次產生約 30 秒的器樂片段，會自動處理成可以循環播放。Lyria 只做音樂，音效仍使用內建合成。')}</p>
+                    </React.Fragment>
+                )}
+                {audio.provider === 'gateway' && (
+                    <p className={styles.hint}>{t('使用上方「班級閘道」的設定；KEY 由老師的伺服器保管，次數由老師設定。')}</p>
+                )}
             </div>
 
             <div className={styles.section}>

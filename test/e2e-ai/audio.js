@@ -49,7 +49,7 @@ const reply = body => {
 
   // Loop music on the stage with loop blocks.
   await p.click('button:has-text("背景音樂（循環）")');
-  await p.selectOption('section select >> nth=0', 'adventure');
+  await p.selectOption('section select >> nth=1', 'adventure');
   const t0 = Date.now();
   await p.click('button:has-text("快速產生")');
   await p.waitForSelector('section audio');

@@ -31,6 +31,12 @@ export const defaultSettings = () => ({
         apiKey: '',
         model: 'agnes-image-2.1-flash',
         baseUrl: 'https://apihub.agnes-ai.com/v1'
+    },
+    // AI sound effects and music (audio/services.js). An empty geminiKey reuses the text model's Gemini key.
+    audio: {
+        provider: 'synth',
+        elevenlabsKey: '',
+        geminiKey: ''
     }
 });
 
@@ -67,6 +73,7 @@ const merge = (base, saved) => {
         result.providers[id] = {...base.providers[id], ...(saved.providers && saved.providers[id])};
     }
     result.image = {...base.image, ...saved.image};
+    result.audio = {...base.audio, ...saved.audio};
     return result;
 };
 
@@ -80,6 +87,8 @@ const stripKeys = settings => {
     const copy = JSON.parse(JSON.stringify(settings));
     for (const id of Object.keys(copy.providers)) copy.providers[id].apiKey = '';
     copy.image.apiKey = '';
+    copy.audio.elevenlabsKey = '';
+    copy.audio.geminiKey = '';
     return copy;
 };
 

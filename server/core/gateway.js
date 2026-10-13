@@ -14,6 +14,8 @@ import anthropic from '../../src/ai/providers/anthropic.js';
 import gemini from '../../src/ai/providers/gemini.js';
 import {createOpenAIAdapter} from '../../src/ai/providers/openai.js';
 import {AIError, ErrorKind, isDowngradable} from '../../src/ai/providers/errors.js';
+import {elevenLabsMusic, elevenLabsSfx, lyriaMusic} from '../../src/ai/audio/services.js';
+import {toBase64} from '../../src/ai/backend/base64.js';
 
 export const VERSION = 2;
 
@@ -90,13 +92,15 @@ export const normalizeClass = (json, base = {}) => {
         limits: {
             requestsPerDay: Math.max(0, Number(limits.requestsPerDay) || 0),
             tokensPerDay: Math.max(0, Number(limits.tokensPerDay) || 0),
-            classTokensPerDay: Math.max(0, Number(limits.classTokensPerDay) || 0)
+            classTokensPerDay: Math.max(0, Number(limits.classTokensPerDay) || 0),
+            audioPerDay: Math.max(0, Number(limits.audioPerDay) || 0)
         },
         roster: Array.isArray(input.roster) ? input.roster.map(cleanName).filter(Boolean) :
             (typeof input.roster === 'undefined' ? base.roster || null : null),
         active: typeof input.active === 'boolean' ? input.active : base.active !== false,
         features: {
             ai: true,
+            audio: true,
             submissions: true,
             projects: true,
             ...(base.features || {}),
@@ -109,7 +113,7 @@ export const normalizeClass = (json, base = {}) => {
  * @param {object} options options
  * @param {object} options.store key-value store {get, put, delete, list}
  * @param {object} [options.env] ADMIN_TOKEN, ALLOWED_ORIGINS, ANTHROPIC_KEY, OPENAI_KEY, GEMINI_KEY,
- *     COMPATIBLE_URL, COMPATIBLE_KEY, MAX_PROJECT_MB
+ *     COMPATIBLE_URL, COMPATIBLE_KEY, ELEVENLABS_KEY, MAX_PROJECT_MB
  * @param {object} [options.providers] provider adapters (tests)
  * @param {function} [options.fetchImpl] fetch for upstream calls (tests)
  * @param {function(): Date} [options.now] clock (tests)
@@ -274,6 +278,56 @@ export const createGateway = ({store, env = {}, providers = DEFAULT_PROVIDERS, f
             `Upstream: ${lastError.message}`);
     };
 
+    // AI sound effects and music with the server's keys; counted per student per day.
+    const audio = async (request, {klass, code, student}) => {
+        if (klass.features && klass.features.audio === false) {
+            throw new HttpError(403, 'disabled', 'AI audio is turned off for this class');
+        }
+        const body = await readBody(request);
+        const prompt = String(body.prompt || '').slice(0, 2000);
+        if (!prompt) throw new HttpError(400, 'bad_request', 'prompt is required');
+        const kind = body.kind === 'music' ? 'music' : 'sfx';
+        const key = `usage-audio:${code}:${day(now())}:${student}`;
+        const used = (await store.get(key)) || 0;
+        const limit = (klass.limits && klass.limits.audioPerDay) || 0;
+        if (limit && used >= limit) {
+            throw new HttpError(429, 'insufficient_quota', `Daily audio limit reached (${limit})`);
+        }
+        // Music prefers Lyria (Gemini key); sound effects need ElevenLabs.
+        let engine = body.engine;
+        if (!engine) engine = kind === 'music' && env.GEMINI_KEY ? 'lyria' : 'elevenlabs';
+        let result;
+        try {
+            if (engine === 'lyria' && kind === 'music' && env.GEMINI_KEY) {
+                result = await lyriaMusic({apiKey: env.GEMINI_KEY, prompt, fetchImpl});
+            } else if (env.ELEVENLABS_KEY) {
+                result = kind === 'music' ?
+                    await elevenLabsMusic({apiKey: env.ELEVENLABS_KEY, prompt, seconds: 30, fetchImpl}) :
+                    await elevenLabsSfx({
+                        apiKey: env.ELEVENLABS_KEY,
+                        prompt,
+                        durationSeconds: Number(body.durationSeconds) || 0,
+                        loop: !!body.loop,
+                        fetchImpl
+                    });
+            } else {
+                const what = kind === 'music' ? 'music' : 'sound effect';
+                throw new HttpError(503, 'model_not_found', `No ${what} service is configured`);
+            }
+        } catch (e) {
+            if (e instanceof HttpError) throw e;
+            throw new HttpError(e.kind === ErrorKind.QUOTA ? 429 : 502,
+                e.kind === ErrorKind.QUOTA ? 'insufficient_quota' : 'upstream_error', `Upstream: ${e.message}`);
+        }
+        await store.put(key, used + 1);
+        return json({
+            format: result.format,
+            rate: result.rate,
+            mimeType: result.mimeType,
+            data: toBase64(result.data)
+        });
+    };
+
     // ---- storage helpers (submissions, projects) ----
 
     const decodeProject = text => {
@@ -295,6 +349,7 @@ export const createGateway = ({store, env = {}, providers = DEFAULT_PROVIDERS, f
             ok: true,
             version: VERSION,
             upstreams: Object.keys(providers).filter(upstreamReady),
+            audio: {music: !!(env.GEMINI_KEY || env.ELEVENLABS_KEY), sfx: !!env.ELEVENLABS_KEY},
             admin: !!env.ADMIN_TOKEN
         })],
 
@@ -308,6 +363,7 @@ export const createGateway = ({store, env = {}, providers = DEFAULT_PROVIDERS, f
             return json({data: classModels(klass).map(m => ({id: `${m.provider}/${m.model}`}))});
         }],
         ['POST', /^\/v1\/complete$/, async request => complete(request, await requireStudent(request))],
+        ['POST', /^\/v1\/audio$/, async request => audio(request, await requireStudent(request))],
         ['GET', /^\/v1\/usage$/, async request => {
             const {klass, code, student} = await requireStudent(request);
             const usage = await store.get(usageKey(code, day(now()), student));

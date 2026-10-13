@@ -109,13 +109,19 @@ const ItemEditor = ({item, onChange, onRemove}) => (
             onChange={e => onChange({...item, desc: e.target.value})}
         />
         {item.type === 'rule' && (
-            <div className={styles.row} style={{marginTop: '0.25rem'}}>
+            <div
+                className={styles.row}
+                style={{marginTop: '0.25rem'}}
+            >
                 <select
                     className={classNames(styles.select, styles.grow)}
                     value={ruleName(item.check)}
                     onChange={e => onChange({...item, check: {[e.target.value]: true}})}
                 >
-                    {Object.entries(RULE_DESCRIPTIONS).map(([key, text]) => <option key={key} value={key}>{t(text)}</option>)}
+                    {Object.entries(RULE_DESCRIPTIONS).map(([key, text]) => (<option
+                        key={key}
+                        value={key}
+                    >{t(text)}</option>))}
                 </select>
                 <input
                     className={classNames(styles.input, styles.grow)}
@@ -233,7 +239,10 @@ const ClassConfigEditor = ({services}) => {
                 value={config.aiMode || 'both'}
                 onChange={e => setConfig({...config, aiMode: e.target.value})}
             >
-                {Object.entries(AI_MODES).map(([id, label]) => <option key={id} value={id}>{t(label)}</option>)}
+                {Object.entries(AI_MODES).map(([id, label]) => (<option
+                    key={id}
+                    value={id}
+                >{t(label)}</option>))}
             </select>
             {feature('generate', t('允許 AI 產生積木'))}
             {feature('image', t('允許 AI 生圖'))}
@@ -251,6 +260,18 @@ const ClassConfigEditor = ({services}) => {
                     onChange={e => setConfig({...config, imageDailyLimit: Number(e.target.value)})}
                 />
                 <span className={styles.meta}>{t('0 = 不限')}</span>
+            </div>
+            <div className={styles.row}>
+                <span>{t('每人每天 AI 音效／音樂上限')}</span>
+                <input
+                    className={styles.input}
+                    style={{width: '5rem'}}
+                    type="number"
+                    min="0"
+                    value={config.audioDailyLimit || 0}
+                    onChange={e => setConfig({...config, audioDailyLimit: Number(e.target.value)})}
+                />
+                <span className={styles.meta}>{t('0 = 不限（內建合成不計）')}</span>
             </div>
             <label className={styles.label}>{t('班級閘道（選填，在「班級」分頁建立）')}</label>
             <div className={styles.row}>
@@ -271,7 +292,10 @@ const ClassConfigEditor = ({services}) => {
             <p className={styles.meta}>{t('填了之後，學生套用班級設定就會自動使用閘道，只需輸入座號。')}</p>
             <label className={styles.label}>{t('允許的平台（都不勾 = 全部）')}</label>
             {PROVIDER_ORDER.map(id => (
-                <label key={id} className={styles.checkbox}>
+                <label
+                    key={id}
+                    className={styles.checkbox}
+                >
                     <input
                         type="checkbox"
                         checked={config.providers.includes(id)}
@@ -295,7 +319,10 @@ const ClassConfigEditor = ({services}) => {
             <label className={styles.label}>{t('包含的任務包（在「任務」分頁匯入或用 AI 出題後會出現在這裡）')}</label>
             {savedPacks.length === 0 && <p className={styles.meta}>{t('（沒有任務包；內建的入門任務包一律提供）')}</p>}
             {savedPacks.map(pack => (
-                <label key={pack.id} className={styles.checkbox}>
+                <label
+                    key={pack.id}
+                    className={styles.checkbox}
+                >
                     <input
                         type="checkbox"
                         checked={selectedPacks.includes(pack.id)}
@@ -307,7 +334,10 @@ const ClassConfigEditor = ({services}) => {
             ))}
             <label className={styles.label}>{t('包含的範本（學生自我檢查用）')}</label>
             {templates.map(tpl => (
-                <label key={tpl.id} className={styles.checkbox}>
+                <label
+                    key={tpl.id}
+                    className={styles.checkbox}
+                >
                     <input
                         type="checkbox"
                         checked={selected.includes(tpl.id)}
@@ -316,7 +346,10 @@ const ClassConfigEditor = ({services}) => {
                     {t('{0}（學生可見度：{1}）', [tpl.title, t(STUDENT_VIEWS[tpl.studentView])])}
                 </label>
             ))}
-            <div className={styles.row} style={{marginTop: '0.5rem'}}>
+            <div
+                className={styles.row}
+                style={{marginTop: '0.5rem'}}
+            >
                 <button
                     className={styles.button}
                     onClick={exportConfig}
@@ -389,7 +422,10 @@ const TemplatesTab = ({services}) => {
                             value={editing.scoring}
                             onChange={e => setEditing({...editing, scoring: e.target.value})}
                         >
-                            {Object.entries(SCORING).map(([id, label]) => <option key={id} value={id}>{t(label)}</option>)}
+                            {Object.entries(SCORING).map(([id, label]) => (<option
+                                key={id}
+                                value={id}
+                            >{t(label)}</option>))}
                         </select>
                     </div>
                     <div>
@@ -410,7 +446,10 @@ const TemplatesTab = ({services}) => {
                     value={editing.studentView}
                     onChange={e => setEditing({...editing, studentView: e.target.value})}
                 >
-                    {Object.entries(STUDENT_VIEWS).map(([id, label]) => <option key={id} value={id}>{t(label)}</option>)}
+                    {Object.entries(STUDENT_VIEWS).map(([id, label]) => (<option
+                        key={id}
+                        value={id}
+                    >{t(label)}</option>))}
                 </select>
                 <label className={styles.label}>{t('評語語氣')}</label>
                 <select
@@ -459,7 +498,10 @@ const TemplatesTab = ({services}) => {
                         })}
                     >{t('+ 測試項目')}</button>
                 </div>
-                <div className={styles.row} style={{marginTop: '0.75rem'}}>
+                <div
+                    className={styles.row}
+                    style={{marginTop: '0.75rem'}}
+                >
                     <button
                         className={styles.button}
                         onClick={() => save(editing)}
@@ -479,7 +521,10 @@ const TemplatesTab = ({services}) => {
                 <h3 className={styles.sectionTitle}>{t('批改範本')}</h3>
                 {templates.length === 0 && <p className={styles.hint}>{t('還沒有範本。')}</p>}
                 {templates.map(tpl => (
-                    <div key={tpl.id} className={classNames(styles.card, styles.row)}>
+                    <div
+                        key={tpl.id}
+                        className={classNames(styles.card, styles.row)}
+                    >
                         <div className={styles.grow}>
                             <div>{tpl.title}</div>
                             <div className={styles.meta}>

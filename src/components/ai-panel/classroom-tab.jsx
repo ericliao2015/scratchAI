@@ -86,7 +86,7 @@ const ClassroomTab = ({services}) => {
     const [submissions, setSubmissions] = useState(null);
     const [busy, setBusy] = useState('');
     const [error, setError] = useState('');
-    const [draft, setDraft] = useState({name: '', models: SUGGESTED.slice(0, 2).join('\n'), requestsPerDay: 100, tokensPerDay: 200000});
+    const [draft, setDraft] = useState({name: '', models: SUGGESTED.slice(0, 2).join('\n'), requestsPerDay: 100, tokensPerDay: 200000, audioPerDay: 10});
 
     const admin = gatewayAdmin({baseUrl: connection.url, adminToken: connection.token});
     const klass = classes && classes.find(c => c.code === selected);
@@ -123,7 +123,11 @@ const ClassroomTab = ({services}) => {
         const created = await admin.createClass({
             name: draft.name,
             models: draft.models.split(/\s+/).filter(Boolean),
-            limits: {requestsPerDay: Number(draft.requestsPerDay) || 0, tokensPerDay: Number(draft.tokensPerDay) || 0}
+            limits: {
+                requestsPerDay: Number(draft.requestsPerDay) || 0,
+                tokensPerDay: Number(draft.tokensPerDay) || 0,
+                audioPerDay: Number(draft.audioPerDay) || 0
+            }
         });
         setClasses(await admin.listClasses());
         await openClass(created.code);
@@ -249,6 +253,15 @@ const ClassroomTab = ({services}) => {
                                 value={draft.tokensPerDay}
                                 onChange={e => setDraft({...draft, tokensPerDay: e.target.value})}
                             />
+                            <span>{t('AI 聲音')}</span>
+                            <input
+                                className={styles.input}
+                                style={{width: '4rem'}}
+                                type="number"
+                                min="0"
+                                value={draft.audioPerDay}
+                                onChange={e => setDraft({...draft, audioPerDay: e.target.value})}
+                            />
                         </div>
                         <p className={styles.meta}>{t('0 = 不限')}</p>
                         <button
@@ -269,7 +282,9 @@ const ClassroomTab = ({services}) => {
                     <p className={styles.meta}>
                         {t('模型：{0}', [klass.models.map(m => `${m.provider}/${m.model}`).join(' → ') || t('（無）')])}
                         <br />
-                        {t('每人每天：{0} 次、{1} token', [klass.limits.requestsPerDay || '∞', klass.limits.tokensPerDay || '∞'])}
+                        {t('每人每天：{0} 次、{1} token、AI 聲音 {2} 次', [
+                            klass.limits.requestsPerDay || '∞', klass.limits.tokensPerDay || '∞', klass.limits.audioPerDay || '∞'
+                        ])}
                     </p>
                     <div className={styles.row}>
                         <button
